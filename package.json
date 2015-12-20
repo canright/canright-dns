@@ -1,0 +1,37 @@
+{
+  "name": "nice_dns",
+  "version": "0.2.0",
+  "private": true,
+  "description": "minimum node express server for dns lookups (cli, react client, ...)",
+  "author": "Jim Canright",
+  "license": "ISC",
+  "main": "dns.js",
+  "scripts": {
+    "test": "testDns.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "dns"
+  },
+  "keywords": [
+    "node",
+    "dns",
+    "express",
+    "lookup",
+    "cli",
+    "react",
+    "server",
+    "wrapper"
+  ],
+  "dependencies": {
+    "body-parser": "*",
+    "express": "*",
+    "morgan": "*",
+    "serve-favicon": "*"
+  },
+  "devDependencies": {
+    "mocha": "*",
+    "chai": "*",
+    "request": "*"
+  }
+}
