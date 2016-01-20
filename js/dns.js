@@ -35,9 +35,21 @@
   exports.lookupService(address, port) then(hostname)
 */
 
+/* configuration for dns lookup
+*  stds = array of default (standard) subdirectories
+*  rrtypes = array of dns resolution record types to resolve
+*/
 const dns = require('dns'),
   stds    = ['www', 'api', 'rest', 'mail', 'ftp'],
   rrtypes = ['NS', 'SOA', 'A', 'AAAA', 'CNAME', 'MX', 'TXT', 'SRV']; // 'PTR'
+
+/** deep lookup for host and subdomains
+*
+*   @param {string} rqsthost - domain with dns, eg: canright.com
+*   @param (array of strings) rqstsubs - eg: ["www", "ftp", "mail"]
+*   @returns {promise}
+*   @resolve {rpt} - data object
+*/
 exports.lookup = (rqsthost, rqstsubs) => {
   var subs = rqstsubs.length ? rqstsubs : stds;
   return new Promise ((resolve, reject) => {
