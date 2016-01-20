@@ -15,36 +15,36 @@ console.log('- Serving: localhost:%s\n', process.env.PORT || 3000);
 app.get('/dns.html', (req, res) => {res.sendFile(req, res, '/dns.html')});
 
 const render = (isH, rpt) => {
-  const nn  = n     => n + isH ? '' : ' '.repeat( 8-n.length);
-  const pp  = p     => p + isH ? '' : ' '.repeat(10-p.length);
-  const ln  = s     => isH ? '<li>' + s + '</li>' : s; // string
-  const nv  = (n,v) => ln(nn(n) + v); // name valuey, value)
-  const opv = (n,o) => { // object property values(name, object)
+  const n8  = n     => isH ? n + ' ' : n + ' '.repeat(8 - n.length);
+  const n0  = n     => isH ? n + ' ' : n + ' '.repeat(12- n.length);
+  const ln  = s     => isH ? '<li>' + s + '</li>' : s;    // one line string
+  const nv  = (n,v) => ln(n8(n) + JSON.stringify(v));     // name, value
+  const opv = (n,o) => {                                  // object property values (name, object)
     var r = '';
     for (var p in o) {
       if (o.hasOwnProperty(p))
-        r += ln(nn(n) + pp(p) + ': ' + o[p]) + '\n  ';
+        r += ln( n8(n) + n0(p) + o[p]) + '\n  ';
     }
     return r;
   }
-  const aiv = (n, a)  => a ? a.map(v => ln(nn(n) + v)).join('\n  ')
-                           : ln(nn(n) + 'none');
-  const aio = (n, a)  => a ? a.map(v => ln(nn(n) + JSON.stringify(v))).join('\n  ')
-                           : ln(nn(n) + 'none');
+
+// array values (name, array)
+  const aiv = (n, a)  => a ? a.map(v => ln(n8(n) + JSON.stringify(v))).join('\n  ')
+                           : ln(n8(n) + 'none');
   return `
   ${isH?'<ul>':'-- DNS LOOKUP -----'}
   ${nv ('HOST',   rpt.rqsthost)}
   ${nv ('SUBS',   rpt.subdomains)}
-  ${opv('SOA',    rpt.SOA)}
   ${aiv('SERVER', rpt.servers)}
-  ${aio('NS',     rpt.NS)}
-  ${aio('LOOK',   rpt.lookups)}
-  ${aio('A',      rpt.A)}
+  ${aiv('NS',     rpt.NS)}
+  ${opv('SOA',    rpt.SOA)}
+  ${aiv('LOOK',   rpt.lookups)}
+  ${aiv('A',      rpt.A)}
   ${aiv('AAAA',   rpt.AAAA)}
-  ${aio('CNAME',  rpt.CNAME)}
-  ${aio('MX',     rpt.MX)}
-  ${aio('SRV',    rpt.SRV)}
-  ${aio('TXT',    rpt.TXT)}
+  ${aiv('CNAME',  rpt.CNAME)}
+  ${aiv('MX',     rpt.MX)}
+  ${aiv('SRV',    rpt.SRV)}
+  ${nv ('TXT',    rpt.TXT)}
   ${isH?'</ul>':'-------------------'}
   ${isH?'<hr>':''}
   ${isH?'<!--':''}

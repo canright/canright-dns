@@ -53,7 +53,7 @@ exports.lookup = (rqsthost, rqstsubs) => {
         },
         ips  = {},
         loks = [],
-        revs = [],
+        revs = [], // array of promises for reverse lookup
         lkup = dom => new Promise ((resolve, reject) => {
           dns.lookup(dom, (err, address, family) => {
             if (!err) {
@@ -66,24 +66,26 @@ exports.lookup = (rqsthost, rqstsubs) => {
             }
           });
         }),
-        rvrs = ip => new Promise ((resolve, reject) => {
-          console.log('rvrs(%s)', ip);
+        rvrs = address => new Promise ((resolve, reject) => {
           dns.reverse(address, (err, revhosts) => {
-            if (!err) {
-              ips[address] = revhosts;
-              resolve();
-            } else
-              resolve();
+            ips[address] = err ? [] : revhosts;
+            resolve();
           });
         }),
         rslv = (hostname, rrtype) => {
 
           var prom = new Promise ((resolve, reject) => {
-            dns.resolve(hostname, rrtype, (err, hits) => {resolve(err?null:hits)});
+            dns.resolve(hostname, rrtype, (err, hits) => {
+              if(err)
+                console.log("[%s] err: %s", rrtype, err);
+              resolve(err?null:hits)
+            });
           });
           loks.push(prom);
           prom.then (recs => {
             rpt[rrtype] = recs;
+            console.log('(%s, %s) => {%s}', rrtype, JSON.stringify(recs));
+            if (rrtype === 'TXT') console.log('TXT=%s', JSON.stringify(recs));
             if (rrtype === 'A' || rrtype === 'AAAA')
               if (recs)
                 for(let k=0, knt=recs.length; k<knt; ++k) {
@@ -95,7 +97,7 @@ exports.lookup = (rqsthost, rqstsubs) => {
             console.log(`rslv(${hostname}, ${rrtype}) err: ${err}`)
           });
         };
-      console.log('lookup root: %s.', rqsthost);
+      console.log('lookup host: %s.', rqsthost);
       loks.push(lkup(rqsthost));
       for (let k=0, knt=subs.length; k<knt; ++k) {
         loks.push(lkup([subs[k], rqsthost].join('.')));
@@ -103,38 +105,25 @@ exports.lookup = (rqsthost, rqstsubs) => {
 
       for(let k = 0; k < rrtypes.length; ++k)
         rslv(rqsthost, rrtypes[k]);
+      console.log("looking up...");
       Promise.all(loks)
       .then( () => {
         console.log('lookups done with %d ips.', Object.keys(ips).length);
         if (Object.keys(ips).length) {
-          for (let ip in ips) {
+          for (let ip in ips)
             revs.push(rvrs(ip));
-          }
-          for (let k=0, knt=revs.length; k<knt; ++k)
-            console.log("REVERSES %s", JSON.stringify(revs[k]));
-        } else {
-          console.log('nothing in ips');
-
-        }
-        console.log("ips itterated: %d", revs.length);
-        if (revs.length) {
-          console.log("got revs (%d)", revs.length);
           Promise.all(revs)
           .then( () => {
-            ()  => {
-              console.log('with reverses...');
-              resolve(rpt);
-            },
-            err => {
-              console.log('reversing error: %s', err);
-              resolve(rpt);
-            }
+            for (let ip in ips)
+              console.log('ips[%s] = %s', ip, JSON.stringify(ips[ip]));
+            resolve(rpt);
           });
         } else {
-          console.log("no reverses");
+          console.log('no ips found');
           resolve(rpt);
         }
+
       });
-      }
+    }
   });
 };
