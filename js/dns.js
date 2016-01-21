@@ -51,65 +51,76 @@ const dns = require('dns'),
 *   @resolve {rpt} - data object
 */
 exports.lookup = (rqsthost, rqstsubs) => {
+  var tStart = new Date();
   var subs = rqstsubs.length ? rqstsubs : stds;
+
   return new Promise ((resolve, reject) => {
-    if (!rqsthost)
-      reject('Domain name required');
-    else {
+    if (!rqsthost) {
+      var mag = "Domain name required";
+      logit(msg);
+      reject(msg);
+    } else {
       var rpt = {
           rqsthost:   rqsthost,
           subdomains: subs,
           servers:    dns.getServers(),
           lookups:    [],
-          reverses:   {}
+          reverses:   {},
+          logg:       []
         },
+        logit= msg => {rpt.logg.push([new Date() - tStart, msg])},
         ips  = {},
         loks = [],
         revs = [], // array of promises for reverse lookup
         lkup = dom => new Promise ((resolve, reject) => {
+          var ider = 'lookup ' + dom + ' ';
+          logit(ider + 'start');
           dns.lookup(dom, (err, address, family) => {
             if (!err) {
+              logit(ider + address);
               rpt.lookups.push({dom: dom, address: address, family: family});
               ips[address] = [];
               resolve();
             } else {
+              logit(ider + 'none');
               rpt.lookups.push({dom: dom, address: 'none'});
               resolve();              
             }
           });
         }),
         rvrs = address => new Promise ((resolve, reject) => {
+          var ider = 'reverse ' + address + ' ';
+          logit(ider + 'start');
           dns.reverse(address, (err, revhosts) => {
+            logit(ider + (err?0:revhosts.length));
             ips[address] = err ? [] : revhosts;
             resolve();
           });
         }),
         rslv = (hostname, rrtype) => {
-
-          var prom = new Promise ((resolve, reject) => {
+          var ider = 'resolve ' + rrtype + ' ',
+            prom = new Promise ((resolve, reject) => {
+            logit(ider + 'start');
             dns.resolve(hostname, rrtype, (err, hits) => {
-              if(err)
-                console.log("[%s] err: %s", rrtype, err);
+              logit(ider + (err ? 'ERR: ' + err : 'done'));
               resolve(err?null:hits)
             });
           });
           loks.push(prom);
           prom.then (recs => {
+            logit(ider + recs.length);
             rpt[rrtype] = recs;
-            console.log('(%s, %s) => {%s}', rrtype, JSON.stringify(recs));
-            if (rrtype === 'TXT') console.log('TXT=%s', JSON.stringify(recs));
             if (rrtype === 'A' || rrtype === 'AAAA')
-              if (recs)
+              if (recs.length)
                 for(let k=0, knt=recs.length; k<knt; ++k) {
                   ips[recs[k]] = [];
                 }
           })
           .catch(err  => {
-            console.log('rslv(%s, %s) err: %s.', hostname, rrtype, err);
-            console.log(`rslv(${hostname}, ${rrtype}) err: ${err}`)
+            logit(ider + 'ERR: ' + err);
           });
         };
-      console.log('lookup host: %s.', rqsthost);
+      logit("lookup " + rqsthost);
       loks.push(lkup(rqsthost));
       for (let k=0, knt=subs.length; k<knt; ++k) {
         loks.push(lkup([subs[k], rqsthost].join('.')));
@@ -117,21 +128,19 @@ exports.lookup = (rqsthost, rqstsubs) => {
 
       for(let k = 0; k < rrtypes.length; ++k)
         rslv(rqsthost, rrtypes[k]);
-      console.log("looking up...");
+      logit('looking up');
       Promise.all(loks)
       .then( () => {
-        console.log('lookups done with %d ips.', Object.keys(ips).length);
+        logit("ips: " + Object.keys(ips).length);
         if (Object.keys(ips).length) {
           for (let ip in ips)
             revs.push(rvrs(ip));
           Promise.all(revs)
           .then( () => {
-            for (let ip in ips)
-              console.log('ips[%s] = %s', ip, JSON.stringify(ips[ip]));
             resolve(rpt);
           });
         } else {
-          console.log('no ips found');
+          logit("no ips found");
           resolve(rpt);
         }
 

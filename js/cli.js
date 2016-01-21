@@ -7,10 +7,10 @@ exports.initialize = () => {
 
   const stdin  = process.openStdin();
 
-  console.log("serving cli requests like: ");
-  console.log("> dns hostname, subdoms... ");
-  console.log("example: ");
-  console.log("> dns canright.com, www, ftp");
+  console.log("- Serving CLI requests like: ");
+  console.log("- > dns hostname, subdoms... ");
+  console.log("- example: ");
+  console.log("- > dns canright.com, www, ftp");
 
   stdin.addListener('data', function(d) {
     var o = JSON.parse(JSON.stringify(d));

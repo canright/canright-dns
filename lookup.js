@@ -15,7 +15,7 @@ app.use(parser.json());
 app.use(parser.urlencoded({ extended: false }));
 app.use(morgan('dev'));
 
-console.log("- Serving: localhost:%s\n", process.env.PORT || 3000);
+console.log("- Serving HTTP requests at: localhost:%s\n", process.env.PORT || 3000);
 
 app.get('/dns.html', (req, res) => {res.sendFile(req, res, '/dns.html')});
 
