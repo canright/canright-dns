@@ -1,11 +1,11 @@
 {
-  "name": "nice_dns",
-  "version": "0.2.0",
+  "name": "dns lookup",
+  "version": "0.3.0",
   "private": true,
-  "description": "minimum node express server for dns lookups (cli, react client, ...)",
+  "description": "minimum node cli and express web server for dns lookups",
   "author": "Jim Canright",
   "license": "ISC",
-  "main": "dns.js",
+  "main": "lookup.js",
   "scripts": {
     "test": "testDns.js"
   },
@@ -19,7 +19,6 @@
     "express",
     "lookup",
     "cli",
-    "react",
     "server",
     "wrapper"
   ],

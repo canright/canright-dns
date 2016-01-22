@@ -9,13 +9,14 @@ const xp = require('express'),
   render = require('./js/render.js'),
   dns    = require('./js/dns.js'),
   cli    = require('./js/cli.js'),
+  say    = cli.say,
   app    = xp();
 
 app.use(parser.json());
 app.use(parser.urlencoded({ extended: false }));
 app.use(morgan('dev'));
 
-console.log("- Serving HTTP requests at: localhost:%s\n", process.env.PORT || 3000);
+say("- Serving HTTP requests at: localhost:" + (process.env.PORT || 3000));
 
 app.get('/dns.html', (req, res) => {res.sendFile(req, res, '/dns.html')});
 
