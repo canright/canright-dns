@@ -8,6 +8,9 @@ const dns = require('./dns.js'),
 var inCli = false,
   reservoir = [];
 
+console.log("- CLI OFF. Enter empty line to use.");
+cli.setPrompt('');
+
 var say = s => {
   if (inCli)
     reservoir.push(s);
@@ -75,8 +78,3 @@ cli
 
     cli.prompt();
   })
-
-exports.initialize = () => {
-  console.log("- CLI OFF. Enter empty line to use.");
-  cli.setPrompt('');
-}
