@@ -2,7 +2,7 @@
 
 const dns = require('./dns.js'),
   readline = require('readline'),
-  render = require('./render.js'),
+  report = require('./report.js'),
   cli = readline.createInterface(process.stdin, process.stdout);
 
 var inCli = false,
@@ -60,7 +60,7 @@ cli
                 dns
                   .lookup(rgs[1], subs)
                   .then (rpt => {
-                    console.log(render.report(0,rpt));
+                    console.log(report.generate(0,rpt));
                     cli.prompt();
                   })
                   .catch(err => {

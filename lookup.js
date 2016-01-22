@@ -6,7 +6,7 @@
 const xp = require('express'),
   morgan = require('morgan'),
   parser = require('body-parser'),
-  render = require('./js/render.js'),
+  report = require('./js/report.js'),
   dns    = require('./js/dns.js'),
   cli    = require('./js/cli.js'),
   app    = xp();
@@ -33,7 +33,7 @@ app.get('/dns/*', (req, res) => {
     var subs = (prts.length>1)? prts.slice(1):[];
 
     dns.lookup(host, subs)
-    .then (rpt => {res.status(200).send(render.report(1,rpt))})
+    .then (rpt => {res.status(200).send(report.generate(1,rpt))})
     .catch(err => {res.status(500).send(`dns.lookup error: ${err}`)});
   }
 });

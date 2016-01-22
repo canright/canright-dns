@@ -1,6 +1,6 @@
 'use strict';
 
-exports.report = (isH, rpt) => {
+exports.generate = (isH, rpt) => {
   const hc  = (h,c) => isH ? h : c;                    // http or cli
   const nl  = (n,l) => n + ' ' + hc('', ' '.repeat(l - n.length)); // name padded to length + 1 space
   const nn  = n     => nl(n,8);                        // name named
@@ -48,7 +48,7 @@ exports.report = (isH, rpt) => {
   ${hc ('EVENT LOG\n<ul>', '-- EVENT LOG -----')}
   ${al (          rpt.logg)}
   ${hc ('</ul>', '-------------------')}
-  
+
   ${hc ('<!--', '')}
   ${hc (JSON.stringify(rpt), '')}
   ${hc ('-->', '')}
