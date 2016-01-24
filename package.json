@@ -1,18 +1,20 @@
 {
-  "name": "dns lookup",
-  "version": "0.3.0",
-  "private": true,
+  "name": "dns_lookup",
   "description": "minimum node cli and express web server for dns lookups",
+  "version": "0.3.1",
+  "private": true,
   "author": "Jim Canright",
   "license": "ISC",
   "main": "lookup.js",
   "scripts": {
     "test": "testDns.js"
   },
+
   "repository": {
     "type": "git",
-    "url": "dns"
+    "url": "git://github.com/canright.dns.git"
   },
+
   "keywords": [
     "node",
     "es6",
@@ -22,12 +24,13 @@
     "node cli server",
     "wrapper"
   ],
+
   "dependencies": {
-    "body-parser": "*",
     "express": "*",
     "morgan": "*",
-    "serve-favicon": "*"
+    "body-parser": "*"
   },
+  
   "devDependencies": {
     "mocha": "*",
     "chai": "*",

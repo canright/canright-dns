@@ -6,9 +6,9 @@
 const xp = require('express'),
   morgan = require('morgan'),
   parser = require('body-parser'),
-  report = require('./js/report.js'),
   dns    = require('./js/dns.js'),
-  cli    = require('./js/cli.js'),
+  report = require('./js/report.js'),
+  cli    = require('./js/cli.js'),  // comment out this line to remove command line interface
   app    = xp();
 
 app.use(parser.json());
