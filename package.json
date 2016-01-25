@@ -1,5 +1,5 @@
 {
-  "name": "dns_lookup",
+  "name": "dns",
   "description": "minimum node cli and express web server for dns lookups",
   "version": "0.3.1",
   "private": true,
@@ -26,9 +26,9 @@
   ],
 
   "dependencies": {
-    "express": "*",
+    "body-parser": "*",
     "morgan": "*",
-    "body-parser": "*"
+    "express": "*",
   },
   
   "devDependencies": {
