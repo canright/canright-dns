@@ -15,21 +15,29 @@
   promise resolution records each has the distinctive properties of the associated rrtype.
   Reverse lookups (associated hostnames) are performed for each IP address lookup resuld  referenced in A, AAAA, CNAME, or MX records.
 
-  report: {
-    rqsthost: the hostname to resolve, like 'canright.com'.
-    subdomains: the subdomains to lookup, like ["www", "ftp"].
-    servers: array returned from dns.getServers(),
-    lookups: array of the results of lookups for the host and subdomains
-    NS: array of NS records resolved
-    SOA: SAO record resolved.
-    A: array of A records resolved.
-    AAAA: array of AAAA records resolved.
-    CNAME: array of CNAME records resolved.
-    MX:  array of MX records resolved.
-    TXT: array of TXT records resolved.
-    SRV: array of SRV records resolved.
-    PTR: array of PTR records resolved.
-    REVERSE: array of ip addresses referenced each with an array of lookups{ip, reverses}
+  domain report: {
+    type: "domain",
+    rqsthost: the hostname to resolve, like 'canright.com',
+    subdomains: [subdomains to lookup],
+    servers: [DNS servers from dns.getServers()],
+    lookups: [results of lookups for the host and subdomains],
+    NS:   [NS records resolved],
+    SOA:  {SAO record resolved},
+    A:    [A records resolved],
+    AAAA: [AAAA records resolved],
+    CNAME:[CNAME records resolved],
+    MX:   [MX records resolved],
+    TXT:  [TXT records resolved],
+    SRV:  [SRV records resolved],
+    PTR:  [PTR records resolved],
+    REVERSE: {ip addresses referenced each with an array of lookups{ip: [reverses]} }
+  }
+
+  domain report: {
+    type: "ip",
+    rqsthost: the IP address to lookup, like '198.145.41.172',
+    servers: [DNS servers from dns.getServers()],
+    reverses: [associated domain from reverse lookup]
   }
 
   exports.lookupService(address, port) then(hostname)

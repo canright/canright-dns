@@ -1,8 +1,8 @@
 "use strict";
 
-const dns = require('./dns.js'),
-  readline = require('readline'),
-  report = require('./report.js'),
+const readline = require('readline'),
+  dns = require('./dns.js'),
+  out = require('./out.js'),
   cli = readline.createInterface(process.stdin, process.stdout);
 
 var inCli = false,

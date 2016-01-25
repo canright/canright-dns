@@ -5,7 +5,7 @@
   "private": true,
   "author": "Jim Canright",
   "license": "ISC",
-  "main": "lookup.js",
+  "main": "server.js",
   "scripts": {
     "test": "testDns.js"
   },

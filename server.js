@@ -4,16 +4,14 @@
  *  serves requests for /dns/host/subs
  */
 const xp = require('express'),
-  morgan = require('morgan'),
-  parser = require('body-parser'),
-  dns    = require('./js/dns.js'),
-  report = require('./js/report.js'),
-  cli    = require('./js/cli.js'),  // comment out this line to remove command line interface
-  app    = xp();
+//parser = require('body-parser'),
+  dns = require('./js/dns.js'),
+  out = require('./js/out.js'),
+  cli = require('./js/cli.js'),  // comment out this line to remove command line interface
+  app = xp();
 
-app.use(parser.json());
-app.use(parser.urlencoded({ extended: false }));
-app.use(morgan('dev'));
+//app.use(parser.json());
+//app.use(parser.urlencoded({ extended: false }));
 
 console.log("- Serving HTTP requests at: localhost:" + (process.env.PORT || 3000));
 
@@ -33,7 +31,7 @@ app.get('/dns/*', (req, res) => {
     var subs = (prts.length>1)? prts.slice(1):[];
 
     dns.lookup(host, subs)
-    .then (rpt => {res.status(200).send(report.generate(1,rpt))})
+    .then (rpt => {res.status(200).send(out.generate(1,rpt))})
     .catch(err => {res.status(500).send(`dns.lookup error: ${err}`)});
   }
 });
