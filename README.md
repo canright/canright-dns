@@ -1,10 +1,10 @@
 # dns
 
 Summary:
-- consolidated dns resolves and lookups from the node dns module
-- uses ES6 features
-- option cli integrated with web server
-- no external dependencies (only uses node, express, morgan and body-parser)
+- consolidated dns resolves and lookups from the node dns module.
+- cli integrated with web server
+- no external dependencies (only uses node and express)
+- ES6/2015 - promises, template strings, arrow functions, ...
 
 DNS report functions:
 - 'dns ipaddress' reports on that IP address.  Reverse lookup to discover domain names
@@ -12,14 +12,20 @@ DNS report functions:
 - 'dns host subdomains' reports dies the same with host and listed rather than default subdomains.
 
 From cli:
-- > dns 198.145.41.172
-- > dns canright.com
-- > dns canright.com www docs admin
+- > help  -- this help
+- > off   -- turn off cli
+- > exit  -- exit node.  Stop the server.
+- > now   -- echo current date and time
+- > dns google.com          -- quick lookup to get the ip address associated with host.
+- > dns google.com full     -- resolve dns for host with lookups for default subdomains (www,mail,ftp,api,rest).
+- > dns google.com www ftps -- resolve dns for host with lookup for listed subdomains.
+- > dns 192.168.92.15       -- reverse lookup of hosts for that ip address.
 
 From a browser:
-- http://yourhost.com/dns/198.145.41.172
-- http://yourhost.com/dns/canright.com
-- http://yourhost.com/dns/canright.com?www&docs&admin
+- www.yourhost.com/dns/google.com               -- quick lookup to get the ip address associated with host.
+- www.yourhost.com/dns/google.com?full          -- resolve dns for host with lookups for default subdomains (www,mail,ftp,api,rest).
+- www.yourhost.com/dns/google.com?subs=www,ftps -- resolve dns for host with lookup for listed subdomains.
+- www.yourhost.com/dns/192.168.92.15            -- reverse lookup of hosts for that ip address.
 
 The dns.js module prepares report data from results 
 
