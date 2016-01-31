@@ -43,26 +43,28 @@ function dns(host) {
 }
   
 domain report: {
-    type: "domain",
     rqsthost: the hostname to resolve, like 'canright.com',
-    subdomains: [subdomains to lookup],
-    servers: [DNS servers from dns.getServers()],
-    lookups: [results of lookups for the host and subdomains],
-    NS:   [NS records resolved],
-    SOA:  {SAO record resolved},
-    A:    [A records resolved],
-    AAAA: [AAAA records resolved],
-    CNAME:[CNAME records resolved],
-    MX:   [MX records resolved],
-    TXT:  [TXT records resolved],
-    SRV:  [SRV records resolved],
-    PTR:  [PTR records resolved],
-    REVERSE: {ip addresses referenced each with an array of lookups{ip: [reverses]} }
+    type:     'domain',
+    subdoms:  [subdomains to lookup],
+    servers:  [DNS servers from dns.getServers()],
+    lookups:  [results of lookups for the host and subdomains],
+    ips:      {ipaddress: [reverse lookups]},
+    logg:     [[ms,msg]] timemarked event log,
+    ns:       [NS records resolved],
+    soa:      {SAO record resolved},
+    a:        [A records resolved],
+    aaaa:     [AAAA records resolved],
+    cname:    [CNAME records resolved],
+    mx:       [MX records resolved],
+    txt:      [TXT records resolved],
+    srv:      [SRV records resolved],
+    ptr:      [PTR records resolved],
 }
 
 IP report: {
-    type: "ip",
     rqsthost: the IP address to reverse lookup, like '198.145.41.172',
+    type:     'domain',
+    type:     'ip',
     servers: [DNS servers from dns.getServers()],
     domains: [associated domains from reverse lookup]
 }

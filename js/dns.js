@@ -1,55 +1,9 @@
 'use strict';
 
-/* wraps and consolides the node dns module with a promise for a consolidated lookup similar to this:
-
-  exports.lookup = (host, subs) => {
-    dns.getServers();
-    dns.resolve(host, eachof(["NS", "SOA", "A", "AAAA", "CNAME", MX", "TXT", "SRV", "PTR"])
-    dns.lookup(base host and each of host's subdomains in subs)
-  }
-  .then(report);  // records collected from all above
-
-  where the host is the host domain name that has a nameserver
-  and subs is a list of subdomain prefexis to check for A records in addition to the base domain.
-  if subs is empty, the default lookup list, ["", www.", "api.", "rest.", "mail.", "ftp."]) is used.
-  promise resolution records each has the distinctive properties of the associated rrtype.
-  Reverse lookups (associated hostnames) are performed for each IP address lookup resuld  referenced in A, AAAA, CNAME, or MX records.
-
-  domain report: {
-    type: "domain",
-    rqsthost: the hostname to resolve, like 'canright.com',
-    subdomains: [subdomains to lookup],
-    servers: [DNS servers from dns.getServers()],
-    lookups: [results of lookups for the host and subdomains],
-    NS:   [NS records resolved],
-    SOA:  {SAO record resolved},
-    A:    [A records resolved],
-    AAAA: [AAAA records resolved],
-    CNAME:[CNAME records resolved],
-    MX:   [MX records resolved],
-    TXT:  [TXT records resolved],
-    SRV:  [SRV records resolved],
-    PTR:  [PTR records resolved],
-    REVERSE: {ip addresses referenced each with an array of lookups{ip: [reverses]} }
-  }
-
-  domain report: {
-    type: "ip",
-    rqsthost: the IP address to lookup, like '198.145.41.172',
-    servers: [DNS servers from dns.getServers()],
-    reverses: [associated domain from reverse lookup]
-  }
-
-  exports.lookupService(address, port) then(hostname)
-*/
-
 /* configuration for dns lookup
 *  stds = array of default (standard) subdirectories
 *  rrtypes = array of dns resolution record types to resolve
 */
-const dns = require('dns'),
-  stds    = ['www', 'api', 'rest', 'mail', 'ftp'],
-  rrtypes = ['NS', 'SOA', 'A', 'AAAA', 'CNAME', 'MX', 'TXT', 'SRV']; // 'PTR'
 
 /** deep lookup for host and subdomains
 *
@@ -58,97 +12,180 @@ const dns = require('dns'),
 *   @returns {promise}
 *   @resolve {rpt} - data object
 */
-exports.lookup = (rqsthost, rqstsubs) => {
-  var tStart = new Date();
-  var subs = rqstsubs.length ? rqstsubs : stds;
 
+const dns = require('dns'),
+  stds    = ['www', 'api', 'rest', 'mail', 'ftp'],
+  rrtypes = ['NS', 'SOA', 'A', 'AAAA', 'CNAME', 'MX', 'TXT', 'SRV']; // 'PTR'
+
+var truthify = b => b ? true : false;
+var isIp   = s => truthify(s.match(new RegExp(/^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/)));
+var isHost = s => truthify(!isIp(s) && s.match(new RegExp(/^((?:(?:(?:\w[\.\-\+]?)*)\w)+)((?:(?:(?:\w[\.\-\+]?){0,62})\w)+)\.(\w{2,6})$/)));
+
+var lookupHost = host => {
   return new Promise ((resolve, reject) => {
-    if (!rqsthost) {
-      var mag = "Domain name required";
-      logit(msg);
-      reject(msg);
-    } else {
+    if (!host.length || !host)
+      reject('Host name required');
+    else {
       var rpt = {
-          rqsthost:   rqsthost,
-          subdomains: subs,
-          servers:    dns.getServers(),
-          lookups:    [],
-          reverses:   {},
-          logg:       []
+          rqsthost:  host,
+          type:    'lookup',
+          evtlog:  []
         },
-        logit= msg => {rpt.logg.push([new Date() - tStart, msg])},
-        ips  = {},
-        loks = [],
+        tStart = new Date().getTime(),
+        logger= msg => {rpt.evtlog.push([new Date().getTime() - tStart, 'lookuo ' + host + ' ' + msg])};
+      logger('start');
+      dns.lookup(host, (err, address, family) => {
+        if (!err) {
+          logger('found ' + address);
+          rpt.address = address;
+          rpt.family = family;
+          resolve(rpt);
+        } else {
+          logger('error ' + err);
+          resolve(rpt);    
+        }          
+      });
+    }
+  });
+}
+
+var reverseIp = ip => {
+  return new Promise ((resolve, reject) => {
+    if (!ip.length || !ip)
+      reject('IP Address required');
+    else {
+      var rpt = {
+          rqstip:  ip,
+          type:    'ip',
+          evtlog:  []
+        },
+        tStart = new Date().getTime(),
+        logger= msg => {rpt.evtlog.push([new Date().getTime() - tStart, 'reverse lookup ' + ip + ' ' + msg])};
+      logger('start');
+      dns.reverse(ip, (err, hosts) => {
+        if (!err && hosts.length && hosts.length) {
+          logger('found ' + hosts.length + ' associated domains');
+          rpt.hosts = hosts;
+        } else {
+          rpt.hosts = [];
+          logger('found no associated domains: ' + (err?err:'but no errors'));
+        }
+        resolve(rpt);
+      });
+    }
+  });
+}
+
+var resolveHost = (rqstHost, rqstSubs) => {
+  return new Promise ((resolve, reject) => {
+    if (!rqstHost.length || !rqstHost)
+      reject('Host name required');
+    else {
+      var rpt = {
+          rqsthost: rqstHost,
+          rqstsubs: rqstSubs,
+          type:     'host',
+          subdoms:  [],
+          servers:  dns.getServers(),
+          lookups:  [],
+          ips:      {},
+          evtlog:   []
+        },
+        tStart = new Date().getTime(),
+        logger= msg => {rpt.evtlog.push([new Date().getTime() - tStart, msg])},
+
+        loks = [], // array of promises for lookups
         revs = [], // array of promises for reverse lookup
-        lkup = dom => new Promise ((resolve, reject) => {
-          var ider = 'lookup ' + dom + ' ';
-          logit(ider + 'start');
+
+        lookitup = dom => new Promise ((resolve, reject) => {
+          var ident = 'lookitup ' + dom + ' ';
+          logger(ident + 'start');
           dns.lookup(dom, (err, address, family) => {
             if (!err) {
-              logit(ider + address);
+              logger(ident + 'found ' + address);
+              rpt.ips[address] = [];
               rpt.lookups.push({dom: dom, address: address, family: family});
-              ips[address] = [];
-              resolve();
+              resolve(address);
             } else {
-              logit(ider + 'none');
-              rpt.lookups.push({dom: dom, address: 'none'});
-              resolve();              
+              logger(ident + 'none');
+              rpt.lookups.push({dom: dom, address: 'none', err: err});
+              resolve('');              
             }
           });
         }),
-        rvrs = address => new Promise ((resolve, reject) => {
-          var ider = 'reverse ' + address + ' ';
-          logit(ider + 'start');
+
+        reverseLookup = address => new Promise ((resolve, reject) => {
+          var ident = 'reverse ' + address + ' ';
+          logger(ident + 'start');
           dns.reverse(address, (err, revhosts) => {
-            logit(ider + (err?0:revhosts.length));
-            ips[address] = err ? [] : revhosts;
-            resolve();
+            if (!err) {
+              if (revhosts.length) {
+                logger(ident  + 'found ' + revhosts.length + 'associated domains');
+                rpt.ips[address] = revhosts;
+                resolve(revhosts);              
+              } else {
+                logger(ident  + 'found no associated domains.');
+                rpt.ips[address] = [];
+                resolve([]);
+              }
+            } else {
+              logger(ident  + 'reverse lookup error: ' + err);
+              rpt.ips[address] = [];
+              resolve([]);
+            }
           });
         }),
-        rslv = (hostname, rrtype) => {
-          var ider = 'resolve ' + rrtype + ' ',
-            prom = new Promise ((resolve, reject) => {
-            logit(ider + 'start');
+
+        resolver = (hostname, rrtype) => {
+          var ident = 'resolve ' + rrtype + ' ',
+          prom = new Promise ((resolve, reject) => {
+            logger(ident + 'start');
             dns.resolve(hostname, rrtype, (err, hits) => {
-              logit(ider + (err ? 'ERR: ' + err : 'done'));
-              resolve(err?null:hits)
+              if (!err) {
+                logger(ident + 'done');
+                resolve(hits)
+              } else {
+                logger(ident + 'ERR: ' + err);
+                resolve(null)
+              }
             });
           });
           loks.push(prom);
           prom.then (recs => {
-            logit(ider + recs.length);
+            logger(ident + recs.length);
             rpt[rrtype] = recs;
             if (rrtype === 'A' || rrtype === 'AAAA')
               if (recs.length)
                 for(let k=0, knt=recs.length; k<knt; ++k) {
-                  ips[recs[k]] = [];
+                  rpt.ips[recs[k]] = [];
                 }
           })
           .catch(err  => {
-            logit(ider + 'ERR: ' + err);
+            logger(ident + 'ERR: ' + err);
           });
         };
-      logit("lookup " + rqsthost);
-      loks.push(lkup(rqsthost));
-      for (let k=0, knt=subs.length; k<knt; ++k) {
-        loks.push(lkup([subs[k], rqsthost].join('.')));
+      logger("lookitup " + rqstHost);
+      loks.push(lookitup(rqstHost));
+      for (let k=0, knt=rqstSubs.length; k<knt; ++k) {
+        loks.push(lookitup([rqstSubs[k], rqstHost].join('.')));
       }
 
       for(let k = 0; k < rrtypes.length; ++k)
-        rslv(rqsthost, rrtypes[k]);
-      logit('looking up');
+        resolver(rqstHost, rrtypes[k]);
+      logger('looking up ' + loks.length);
       Promise.all(loks)
       .then( () => {
-        logit("ips: " + Object.keys(ips).length);
-        if (Object.keys(ips).length) {
-          for (let ip in ips)
-            revs.push(rvrs(ip));
+        let knt = Object.keys(rpt.ips).length;
+        logger('ips: ' + knt);
+        if (knt) {
+          for (let ip in rpt.ips) {
+            revs.push(reverseLookup(ip));
+          }
           Promise.all(revs)
-          .then( () => {
-            resolve(rpt);
-          });
+          .then(() => {resolve(rpt)})
+          .catch(err => logger('reverses failed: ' + err));
         } else {
-          logit("no ips found");
+          logger('no ips found');
           resolve(rpt);
         }
 
@@ -156,3 +193,38 @@ exports.lookup = (rqsthost, rqstsubs) => {
     }
   });
 };
+
+var lookup = host => new Promise ((resolve, reject) => {
+  if (!host.length || !host)
+    reject('Host domain name or IP address required');
+  else if (isIp(host))
+    reverseIp(host).then(rpt  => resolve(rpt));
+  else if (isHost(host))
+    lookupHost(host).then(rpt => resolve(rpt));
+  else
+    reject('Unrecognized host ' + host);
+});
+
+var resolve = (host, subs, full) => new Promise ((resolve, reject) => {
+  if (typeof subs === 'undefined')
+    subs = [];
+  full = (subs.length || (typeof full !== 'undefined'));
+  if (!host.length || !host)
+    reject('Host name required');
+  else if (isIp(host))
+    reverseIp(host).then(rpt  => resolve(rpt));
+  else if (isHost(host)) {
+    if (full)
+      resolveHost(host, subs.length ? subs : stds).then(rpt => resolve(rpt))
+    else
+      lookupHost(host).then(rpt => resolve(rpt));
+  } else
+    reject('Unrecognized host ' + host);
+});
+
+exports.isIp        = isIp;
+exports.isHost      = isHost;
+exports.reverseIp   = reverseIp;
+exports.resolveHost = resolveHost;
+exports.lookup      = lookup;
+exports.resolve     = resolve;
