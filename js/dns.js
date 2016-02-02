@@ -21,6 +21,22 @@ var truthify = b => b ? true : false;
 var isIp   = s => truthify(s.match(new RegExp(/^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/)));
 var isHost = s => truthify(!isIp(s) && s.match(new RegExp(/^((?:(?:(?:\w[\.\-\+]?)*)\w)+)((?:(?:(?:\w[\.\-\+]?){0,62})\w)+)\.(\w{2,6})$/)));
 
+
+var servers = () => {
+  return new Promise ((resolve, reject) => {
+    var rpt = {
+        type:     'servers',
+        servers:  dns.getServers(),
+        evtlog:   []
+      },
+      tStart = new Date().getTime(),
+      logger = msg => {rpt.evtlog.push([new Date().getTime() - tStart, 'servers ' + msg])};
+    logger('start');
+    logger('done');
+    resolve(rpt);
+  });
+}
+
 var lookupHost = host => {
   return new Promise ((resolve, reject) => {
     if (!host.length || !host)
@@ -32,18 +48,18 @@ var lookupHost = host => {
           evtlog:  []
         },
         tStart = new Date().getTime(),
-        logger= msg => {rpt.evtlog.push([new Date().getTime() - tStart, 'lookuo ' + host + ' ' + msg])};
+        logger = msg => {rpt.evtlog.push([new Date().getTime() - tStart, 'lookup ' + host + ' ' + msg])};
       logger('start');
       dns.lookup(host, (err, address, family) => {
         if (!err) {
           logger('found ' + address);
           rpt.address = address;
           rpt.family = family;
-          resolve(rpt);
         } else {
           logger('error ' + err);
-          resolve(rpt);    
-        }          
+        }   
+        logger('done');
+        resolve(rpt);    
       });
     }
   });
@@ -70,6 +86,7 @@ var reverseIp = ip => {
           rpt.hosts = [];
           logger('found no associated domains: ' + (err?err:'but no errors'));
         }
+        logger('done');
         resolve(rpt);
       });
     }
@@ -182,7 +199,10 @@ var resolveHost = (rqstHost, rqstSubs) => {
             revs.push(reverseLookup(ip));
           }
           Promise.all(revs)
-          .then(() => {resolve(rpt)})
+          .then(() => {
+            logger('done');
+            resolve(rpt)
+          })
           .catch(err => logger('reverses failed: ' + err));
         } else {
           logger('no ips found');
@@ -193,17 +213,6 @@ var resolveHost = (rqstHost, rqstSubs) => {
     }
   });
 };
-
-var lookup = host => new Promise ((resolve, reject) => {
-  if (!host.length || !host)
-    reject('Host domain name or IP address required');
-  else if (isIp(host))
-    reverseIp(host).then(rpt  => resolve(rpt));
-  else if (isHost(host))
-    lookupHost(host).then(rpt => resolve(rpt));
-  else
-    reject('Unrecognized host ' + host);
-});
 
 var resolve = (host, subs, full) => new Promise ((resolve, reject) => {
   if (typeof subs === 'undefined')
@@ -224,7 +233,8 @@ var resolve = (host, subs, full) => new Promise ((resolve, reject) => {
 
 exports.isIp        = isIp;
 exports.isHost      = isHost;
+exports.servers     = servers;
+exports.lookupHost  = lookupHost;
 exports.reverseIp   = reverseIp;
 exports.resolveHost = resolveHost;
-exports.lookup      = lookup;
 exports.resolve     = resolve;

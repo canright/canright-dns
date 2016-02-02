@@ -2,6 +2,9 @@
 
 exports.generate = (isH, rpt) => {
   const hc  = (h,c) => isH ? h : c;                    // http or cli
+  const tit = s     => hc ('<hr>\n' + s + '\n<hr>\n<ul>', '-- ' + s + '-----');
+  const end = ()    => hc ('</ul>', '-------------------');
+
   const nl  = (n,l) => n + ' ' + hc('', ' '.repeat(l - n.length)); // name padded to length + 1 space
   const nn  = n     => nl(n,8);                        // name named
   const ln  = s     => hc('<li>' + s + '</li>', s);    // one string line
@@ -27,36 +30,46 @@ exports.generate = (isH, rpt) => {
     return r;
   }
 
-// array values (name, array)
   const aiv = (n, a)  => (a && a.length) ? a.map(v => ln(nl(n,8) + JSON.stringify(v))).join('\n  ')
                            : ln(nl(n,8) + 'none');
   switch (rpt.type) {
-    case 'ip':
-       return `
-  ${hc ('<hr>\nDNS REVERSE LOOKUP\n<hr>\n<ul>', '-- DNS REVERSE LOOKUP -----')}
-  ${nv ('IP ADDR',rpt.rqstip)}
-  ${aiv('HOSTS', rpt.hosts)}
-  ${hc ('</ul>', '-------------------')}
-  ${hc ('<hr>', '')}
-  ${hc ('EVENT LOG\n<ul>', '-- EVENT LOG -----')}
+
+    case 'servers':
+      return `
+  ${tit('DNS SERVERS')}
+  ${aiv('SERVERS',rpt.servers)}
+  ${end()}
+  ${tit('EVENT LOG')}
   ${al (          rpt.evtlog)}
-  ${hc ('</ul>', '-------------------')}`;
+  ${end()}
+`;
+
+    case 'ip':
+      return `
+  ${tit('DNS REVERSE LOOKUP')}
+  ${nv ('IP ADDR',rpt.rqstip)}
+  ${aiv('HOSTS',  rpt.hosts)}
+  ${end()}
+  ${tit('EVENT LOG')}
+  ${al (          rpt.evtlog)}
+  ${end()}
+`;
 
     case 'lookup':
        return `
-  ${hc ('<hr>\nDNS LOOKUP\n<hr>\n<ul>', '-- DNS LOOKUP -----')}
-  ${nv ('HOST',    rpt.rqsthost)}
-  ${nv ('ADDRESS', rpt.address)}
-  ${nv ('FAMILY',  rpt.family)}
-  ${hc ('</ul>', '-------------------')}
-  ${hc ('<hr>', '')}
-  ${hc ('EVENT LOG\n<ul>', '-- EVENT LOG -----')}
+  ${tit('DNS LOOKUP')}
+  ${nv ('HOST',   rpt.rqsthost)}
+  ${nv ('ADDRESS',rpt.address)}
+  ${nv ('FAMILY', rpt.family)}
+  ${end()}
+  ${tit('EVENT LOG')}
   ${al (          rpt.evtlog)}
-  ${hc ('</ul>', '-------------------')}`;
+  ${end()}
+`;
 
     case 'host':
       return `
-  ${hc ('<hr>\nDNS RESOLVE HOST\n<hr>\n<ul>', '-- DNS RESOLVE HOST -----')}
+  ${tit('DNS RESOLVE HOST')}
   ${nv ('HOST',   rpt.rqsthost)}
   ${nv ('LOOKS',  rpt.rqstsubs)}
   ${nv ('SUBS',   rpt.subdoms)}
@@ -70,16 +83,15 @@ exports.generate = (isH, rpt) => {
   ${aiv('MX',     rpt.MX)}
   ${aiv('SRV',    rpt.SRV)}
   ${nv ('TXT',    rpt.TXT)}
-  ${hc ('</ul>', '-------------------')}
-  ${hc ('<hr>', '')}
-  ${hc ('EVENT LOG\n<ul>', '-- EVENT LOG -----')}
+  ${end()}
+  ${tit('EVENT LOG')}
   ${al (          rpt.evtlog)}
-  ${hc ('</ul>', '-------------------')}`;
+  ${end()}
+`;
+    default:
+      return `
+  ${tit('UNRECOGNIZED TYPE')}
+`;
+
   }
 };
-
-/*
-  ${hc ('<!--', '')}
-  ${hc (JSON.stringify(rpt), '')}
-  ${hc ('-->', '')}
-*/
