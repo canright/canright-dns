@@ -2,6 +2,7 @@
 
 Summary:
 - consolidated dns resolves and lookups from the node dns module.
+- uses ES6 features
 - cli integrated with web server
 - no external dependencies (only uses node and express)
 - ES6/2015 - promises, template strings, arrow functions, ...
@@ -54,8 +55,8 @@ domain report: {
     subdoms:  [subdomains to lookup],
     servers:  [DNS servers from dns.getServers()],
     lookups:  [results of lookups for the host and subdomains],
-    ips:      {ipaddress: [reverse lookups]},
-    logg:     [[ms,msg]] timemarked event log,
+    ips:      {ipaddress: [domains from reverse lookups]},
+    evtlog:   [[ms,msg]] timemarked event log,
     ns:       [NS records resolved],
     soa:      {SAO record resolved},
     a:        [A records resolved],

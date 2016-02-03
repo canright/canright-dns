@@ -1,11 +1,12 @@
+/*jslint node: true */
 "use strict";
 
 const readline = require('readline'),
   dns = require('./dns.js'),
   out = require('./out.js'),
-  cli = readline.createInterface(process.stdin, process.stdout);
+  cli = readline.createInterface(process.stdin, process.stdout),
 
-const cliHelp =
+  cliHelp =
 `CLI commands:
 
 = on entry to cli, logging is paused.
@@ -17,9 +18,9 @@ const cliHelp =
 > exit   -- exit node.  Stop the server.
 > now    -- echo current date and time
 > dns    -- dns lookups
-`;
+`,
 
-const dnsHelp =
+  dnsHelp =
 `Usage:
 
 > dns servers     -- list ip addresses for dns resolution servers from dns.getServers() 
@@ -41,90 +42,93 @@ Examples:
 > dns 127.0.0.1 22
 `;
 
+
 var inCli = false,
   reservoir = [];
 
+const say = s => {
+    if (inCli)
+      reservoir.push(s);
+    else {
+      let knt = reservoir.length;
+      for (var k = 0; k < knt; ++k)
+        console.log(reservoir.shift());
+      console.log(s);
+    }
+  },
+
+  ask = s => {console.log(s); cli.prompt()},
+
+  exe = r => {
+    switch (r[0]) {
+
+      case 'pause':
+        say("Logging is paused.");
+        break;
+
+      case 'resume':
+        say("Logging is resumed.");
+        break;
+
+      case 'off':
+        inCli = false;
+        say("CLI is OFF. Enter empty line to turn it on.");
+        cli.setPrompt('');
+        break;
+
+     case 'exit':
+        inCli = false;
+        say('Exiting node');
+        process.exit(0);
+        break;
+
+      case 'now':
+        ask('It is ' + new Date());
+        break;
+
+      case 'dns':
+        if (r.length<2) {
+          ask(dnsHelp);
+        } else {
+            let host = r[1];
+            switch (host) {
+              case 'servers':
+                dns.servers()
+                 .then (rpt => {cli.setPrompt('>'); ask(out.generate(0,rpt))})
+                 .catch(err => {cli.setPrompt('?'); ask('dns servers error: ' + err)});
+                break;
+              default:
+                let subs = [];
+                if (r.length>2 && r[2]!=='full')
+                  for (var i=2;i<r.length;++i)
+                    subs.push(host);
+                cli.setPrompt('...');
+                dns.resolve(host, subs, r.length>2)
+                 .then (rpt => {cli.setPrompt('>'); ask(out.generate(0,rpt))})
+                 .catch(err => {cli.setPrompt('?'); ask('dns resolve error: ' + err)});
+                break;
+            }
+        }
+        break;
+
+      case '':
+      case 'help':
+      default:
+        ask(cliHelp);
+        break;
+    }
+  };
+
+exports.say = say;
+exports.out = process.stdout;
+
 console.log('CLI is OFF. Enter empty line to use.');
 cli.setPrompt('');
-
-var say = s => {
-  if (inCli)
-    reservoir.push(s);
-  else {
-    let knt = reservoir.length;
-    for (var k = 0; k < knt; ++k)
-      console.log(reservoir.shift());
-    console.log(s);
-  }
-}
-exports.say = say;
-
-var ask = s => {console.log(s); cli.prompt()};
 
 cli.on('close', () => {
   console.log('[> close]');
   process.exit(0);
 });
-
-const exe = r => {
-  switch (r[0]) {
-
-    case 'pause':
-      say("Logging is paused.");
-      break;
-
-    case 'resume':
-      say("Logging is resumed.");
-      break;
-
-    case 'off':
-      inCli = false;
-      say("CLI is OFF. Enter empty line to turn it on.");
-      cli.setPrompt('');
-      break;
-
-   case 'exit':
-      inCli = false;
-      say('Exiting node');
-      process.exit(0);
-      break;
-
-    case 'now':
-      ask('It is ' + new Date());
-      break;
-
-    case 'dns':
-      if (r.length<2) {
-        ask(dnsHelp);
-      } else {
-          let host = r[1];
-          switch (host) {
-            case 'servers':
-              dns.servers()
-               .then (rpt => {cli.setPrompt('>'); ask(out.generate(0,rpt))})
-               .catch(err => {cli.setPrompt('?'); ask('dns servers error: ' + err)});
-              break;
-            default:
-              let subs = [];
-              if (r.length>2 && r[2]!=='full')
-                for (var i=2;i<r.length;++i)
-                  subs.push(host);
-              cli.setPrompt('...');
-              dns.resolve(host, subs, r.length>2)
-               .then (rpt => {cli.setPrompt('>'); ask(out.generate(0,rpt))})
-               .catch(err => {cli.setPrompt('?'); ask('dns resolve error: ' + err)});
-              break;
-          }
-      }
-      break;
-
-    case '':
-    case 'help':
-    default:
-      ask(cliHelp);
-      break;
-  }
-}
 
 cli.on('line', (line) => {
   if (!line.length && !inCli) {
@@ -138,4 +142,4 @@ cli.on('line', (line) => {
       say('CLI is off.  To turn on, enter empty line, not: ' + line);
 
   cli.prompt();
-  })
+})
