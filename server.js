@@ -1,12 +1,13 @@
+/*jslint node: true */
 'use strict';
 
-const xp = require('express'),
+const express = require('express'),
   parser = require('body-parser'),
   morgan = require('morgan'),
-  dns = require('./js/dns.js'),
-  out = require('./js/out.js'),
-  cli = require('./js/cli.js'),
-  app = xp(),
+  dns = require('./js/dns'),
+  out = require('./js/out'),
+  cli = require('./js/cli'),
+  app = express(),
   ok  = (res,s) => {res.status(200).send(s)},
 
   webHelp = `
@@ -29,16 +30,21 @@ const xp = require('express'),
 
 app.use(parser.json());
 app.use(parser.urlencoded({ extended: false }));
-app.use(morgan('dev'));
+
+app.use(morgan('dev', {stream: cli.out}));
 
 app.get('/',    (req, res) => ok(res, webHelp));
 app.get('/now', (req, res) => ok(res, 'It is now: ' + new Date()));
-app.get('/dns', (req, res) => ok(res, dnsHelp));
 
-app.get('/dns?servers', (req, res) => {
-  dns.servers()
-    .then (rpt => ok(res, out.generate(1,rpt)))
-    .catch(err => ok(res, `dns.servers error: ${err}`));
+// app.use(dns); 
+
+app.get('/dns', (req, res) => {
+  if (typeof req.query.servers !== 'undefined')
+    dns.servers()
+       .then (rpt => ok(res, out.generate(1,rpt)))
+       .catch(err => ok(res, `dns.servers error: ${err}`));
+  else
+    ok(res, dnsHelp);
 });
 
 app.get('/dns/:host', (req, res) => {

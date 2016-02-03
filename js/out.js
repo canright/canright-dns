@@ -71,9 +71,7 @@ exports.generate = (isH, rpt) => {
       return `
   ${tit('DNS RESOLVE HOST')}
   ${nv ('HOST',   rpt.rqsthost)}
-  ${nv ('LOOKS',  rpt.rqstsubs)}
-  ${nv ('SUBS',   rpt.subdoms)}
-  ${aiv('SERVER', rpt.servers)}
+  ${nv ('SUBS',  rpt.rqstsubs)}
   ${aiv('NS',     rpt.NS)}
   ${opv('SOA',    rpt.SOA)}
   ${aiv('LOOK',   rpt.lookups)}
