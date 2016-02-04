@@ -1,9 +1,7 @@
 /*jslint node: true */
 'use strict';
 
-const xp   = require('express'),
-  dns      = require('dns'),
-  router   = xp.Router(),
+const dns  = require('dns'),
   stds     = ['www', 'api', 'rest', 'mail', 'ftp'], // default subdirectries
   rrtypes  = ['NS', 'SOA', 'A', 'AAAA', 'CNAME', 'MX', 'TXT', 'SRV'], // resolution record types - 'PTR'
   truthify = b => b ? true : false,
@@ -244,14 +242,7 @@ const xp   = require('express'),
   resolve = (host, subs, full) => new Promise ((resolve, reject) => {
     if (typeof subs === 'undefined')
       subs = [];
-    console.log('a: %s!', full);
-    console.log('subs.length: %s!', subs.length);
-    console.log('full: %s!', full);
-    console.log('full?: %s!', full?true:false);
-    console.log('undef: %s!', typeof full !== 'undefined');
-    full = (subs.length || typeof full !== 'undefined' ) ? true : false;
-//  full = (subs.length || (full && typeof full !== 'undefined') ) ? true : false;
-    console.log('b: %s!', full);
+    full = (subs.length || ((typeof full === 'boolean') ? full : (typeof full !== 'undefined'))) ? true : false;
     if (!host.length || !host)
       reject('Host name required');
     else if (isIp(host))
@@ -267,42 +258,14 @@ const xp   = require('express'),
 
 exports.isIp        = isIp;
 exports.isHost      = isHost;
-exports.getServers  = getServers;
 exports.lookupHost  = lookupHost;
 exports.reverseIp   = reverseIp;
 exports.resolveHost = resolveHost;
+
+exports.getServers  = getServers;
 exports.resolve     = resolve;
 
-const out = require('./out'),
-
-  dnsHelp = `
-'/dns?servers'      -- list of ip addresses for dns resolution servers from dns.getServers()<br>
-'/dns/$host'        -- quick lookup to get the ip address associated with that host.<br>
-'/dns/$ip'          -- reverse lookup of hosts for that ip address.<br>
-'/dns/$host?full'   -- resolve dns for that host with lookups for it and the default subdomains (www,mail,ftp,api,rest).<br>
-'/dns/$host?subs=$' -- resolve dns for that host with lookups for it and the listed subdomains.
-`;
 /*
-'/dns?servers' (PUT)  -- replace servers list with array of ip addresses to use.
-'/dns/$address/$port' -- dns.lookupService(address port, callback(err, hostname, service))
+  putServers(servers) -- replace servers list with array of ip addresses to use.
+  lookupService(address port).then(hostname, service).catch(err);
 */
-
-router.get('/dns', (req, res) => {
-  const  ok = (title, body) => out.reply(res, out.htmlPage(title, body));
-  if (typeof req.query.servers === 'undefined')
-    ok('DNS Help', dnsHelp);
-  else
-    getServers()
-    .then (rpt => ok('dns getServers', out.generate(1,rpt)))
-    .catch(err => ok('dns getServers error', err));
-});
-
-router.get('/dns/:host', (req, res) => {
-  const  ok = (title, body) => out.reply(res, out.htmlPage(title, body)),
-    subs = (typeof req.query.subs === 'undefined') ? [] : req.query.subs.split(',');
-  resolve(req.params.host, subs, req.query.full)
-  .then (rpt => ok('dns resolve', out.generate(1,rpt)))
-  .catch(err => ok('dns resolve error', err));
-});
-
-module.exports      = router;

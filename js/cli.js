@@ -1,11 +1,14 @@
 /*jslint node: true */
 'use strict';
 
-const readline = require('readline'),
-  dns = require('./dns.js'),
-  out = require('./out.js'),
-  cli = readline.createInterface(process.stdin, process.stdout),
+var inCli = false,
+  reservoir = [];
 
+const readline = require('readline'),
+  dns = require('./dns'),
+  out = require('./out'),
+  cli = readline.createInterface(process.stdin, process.stdout),
+  log = process.stdio,
   cliHelp =
 `CLI commands:
 
@@ -40,13 +43,9 @@ Examples:
 > dns 192.168.41.171
 
 > dns 127.0.0.1 22
-`;
+`,
 
-
-var inCli = false,
-  reservoir = [];
-
-const say = s => {
+  say = s => {
     if (inCli)
       reservoir.push(s);
     else {
@@ -93,7 +92,7 @@ const say = s => {
             let host = r[1];
             switch (host) {
               case 'servers':
-                dns.servers()
+                dns.getServers()
                  .then (rpt => {cli.setPrompt('>'); ask(out.generate(0,rpt));})
                  .catch(err => {cli.setPrompt('?'); ask('dns servers error: ' + err);});
                 break;
@@ -119,6 +118,7 @@ const say = s => {
     }
   };
 
+exports.log = log;
 exports.say = say;
 exports.out = process.stdout;
 

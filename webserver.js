@@ -4,23 +4,22 @@
 const xp = require('express'),
   parser = require('body-parser'),
   morgan = require('morgan'),
-  dns    = require('./js/dns'),
+  dns    = require('./js/dnsrouter'),
   out    = require('./js/out'),
   PORT   = process.env.PORT || 3000,
+//cli    = require('./js/cli'),
+  logto  = process.stdio,
   app    = xp(),
-
-  webHelp =
+  ok     = (res, title, body) => out.reply(res, out.htmlPage(title, body)),
+  help   =
 `'/now' -- echo current date and time<br>
 '/dns' -- DNS lookups
-`,
-
-  ok  = (res, title, body) => out.reply(res, out.htmlPage(title, body));
+`;
 
 app.use(parser.json());
 app.use(parser.urlencoded({ extended: false }));
-app.use(morgan('dev'));
-
-app.get('/',    (req, res) => ok(res, 'Help', webHelp));
+app.use(morgan('dev', {stream: logto}));
+app.get('/',    (req, res) => ok(res, 'Help', help));
 app.get('/now', (req, res) => ok(res, 'Now', new Date()));
 
 app.use(dns);
