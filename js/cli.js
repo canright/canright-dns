@@ -1,5 +1,5 @@
 /*jslint node: true */
-"use strict";
+'use strict';
 
 const readline = require('readline'),
   dns = require('./dns.js'),
@@ -23,7 +23,7 @@ const readline = require('readline'),
   dnsHelp =
 `Usage:
 
-> dns servers     -- list ip addresses for dns resolution servers from dns.getServers() 
+> dns servers     -- list ip addresses for dns resolution servers from dns.getServers()
 > dns $host       -- quick lookup to get the ip address associated with $host.
 > dns $host full  -- resolve dns for $host with lookups for default subdomains (www,mail,ftp,api,rest).
 > dns $host $subs -- resolve dns for $host with lookup for subdomains in $subs.
@@ -34,7 +34,7 @@ const readline = require('readline'),
 Examples:
 
 > dns servers
-> dns canright.com 
+> dns canright.com
 > dns canright.com full
 > dns canright.com www mail rest
 > dns 192.168.41.171
@@ -51,28 +51,28 @@ const say = s => {
       reservoir.push(s);
     else {
       let knt = reservoir.length;
-      for (var k = 0; k < knt; ++k)
+      for (let k = 0; k < knt; ++k)
         console.log(reservoir.shift());
       console.log(s);
     }
   },
 
-  ask = s => {console.log(s); cli.prompt()},
+  ask = s => {console.log(s); cli.prompt();},
 
   exe = r => {
     switch (r[0]) {
 
       case 'pause':
-        say("Logging is paused.");
+        say('Logging is paused.');
         break;
 
       case 'resume':
-        say("Logging is resumed.");
+        say('Logging is resumed.');
         break;
 
       case 'off':
         inCli = false;
-        say("CLI is OFF. Enter empty line to turn it on.");
+        say('CLI is OFF. Enter empty line to turn it on.');
         cli.setPrompt('');
         break;
 
@@ -94,18 +94,18 @@ const say = s => {
             switch (host) {
               case 'servers':
                 dns.servers()
-                 .then (rpt => {cli.setPrompt('>'); ask(out.generate(0,rpt))})
-                 .catch(err => {cli.setPrompt('?'); ask('dns servers error: ' + err)});
+                 .then (rpt => {cli.setPrompt('>'); ask(out.generate(0,rpt));})
+                 .catch(err => {cli.setPrompt('?'); ask('dns servers error: ' + err);});
                 break;
               default:
                 let subs = [];
                 if (r.length>2 && r[2]!=='full')
-                  for (var i=2;i<r.length;++i)
+                  for (let i=2;i<r.length;++i)
                     subs.push(host);
                 cli.setPrompt('...');
                 dns.resolve(host, subs, r.length>2)
-                 .then (rpt => {cli.setPrompt('>'); ask(out.generate(0,rpt))})
-                 .catch(err => {cli.setPrompt('?'); ask('dns resolve error: ' + err)});
+                 .then (rpt => {cli.setPrompt('>'); ask(out.generate(0,rpt));})
+                 .catch(err => {cli.setPrompt('?'); ask('dns resolve error: ' + err);});
                 break;
             }
         }
@@ -134,7 +134,7 @@ cli.on('line', (line) => {
   if (!line.length && !inCli) {
     cli.setPrompt('> ');
     inCli = true;
-    ask("CLI is ON. Enter empty line for help.");
+    ask('CLI is ON. Enter empty line for help.');
   } else
     if (inCli)
       exe(line.trim().split(' '));
@@ -142,4 +142,4 @@ cli.on('line', (line) => {
       say('CLI is off.  To turn on, enter empty line, not: ' + line);
 
   cli.prompt();
-})
+});

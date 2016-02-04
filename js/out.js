@@ -13,7 +13,7 @@ ${body}
 </html>
 `,
 
-  out = (res, sta, pag) => {res.status(sta).send(pag)},
+  out = (res, sta, pag) => {res.status(sta).send(pag);},
   rply = (res, pag) => out(res, 200, pag);
 
 exports.htmlPage = htmlPage;
@@ -30,7 +30,7 @@ exports.generate = (isH, rpt) => {
 
     opv = (n,o) => {                                                            // object property value (name, object)
       var r = '';
-      for (var p in o) {
+      for (let p in o) {
         if (o.hasOwnProperty(p))
           r += ln( nn(n) + nl(p,12) + o[p]) + '\n  ';
       }
@@ -38,7 +38,7 @@ exports.generate = (isH, rpt) => {
     },
 
     pad = n => {                                                                // numeric left zero pad
-      var s = "000000" + n + ': ';
+      var s = '000000' + n + ': ';
       return s.substr(s.length-8);
     },
 

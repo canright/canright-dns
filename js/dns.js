@@ -1,23 +1,11 @@
 /*jslint node: true */
 'use strict';
 
-/* configuration for dns lookup
-*  stds = array of default (standard) subdirectories
-*  rrtypes = array of dns resolution record types to resolve
-*/
-
-/** deep lookup for host and subdomains
-*
-*   @param {string} rqsthost - domain with dns, eg: canright.com
-*   @param (array of strings) rqstsubs - eg: ["www", "ftp", "mail"]
-*   @returns {promise}
-*   @resolve {rpt} - data object
-*/
 const xp   = require('express'),
   dns      = require('dns'),
   router   = xp.Router(),
-  stds     = ['www', 'api', 'rest', 'mail', 'ftp'],
-  rrtypes  = ['NS', 'SOA', 'A', 'AAAA', 'CNAME', 'MX', 'TXT', 'SRV'], // 'PTR'
+  stds     = ['www', 'api', 'rest', 'mail', 'ftp'], // default subdirectries
+  rrtypes  = ['NS', 'SOA', 'A', 'AAAA', 'CNAME', 'MX', 'TXT', 'SRV'], // resolution record types - 'PTR'
   truthify = b => b ? true : false,
   isIp     = s => truthify(s.match(new RegExp(/^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/))),
   isHost   = s => truthify(!isIp(s) && s.match(new RegExp(/^((?:(?:(?:\w[\.\-\+]?)*)\w)+)((?:(?:(?:\w[\.\-\+]?){0,62})\w)+)\.(\w{2,6})$/))),
@@ -27,8 +15,6 @@ const xp   = require('express'),
 
   dns_lookup = host => {
     return new Promise ((resolve, reject) => {
-      if (host === null)
-        logger('dns_lookup for null!!!');
       if (!host.length || !host)
         reject('Host name required');
       else
@@ -56,18 +42,18 @@ const xp   = require('express'),
   },
 
   dns_resolve = (host, rrtype) => {
-    return new Promise ((resolve, reject) => {
+    return new Promise ((resolve) => {
       dns.resolve(host, rrtype, (err, hits) => {
         if (!err)
-          resolve(hits)
-        else 
-          resolve(null)
+          resolve(hits);
+        else
+          resolve(null);
       });
     });
   },
 
   getServers = () => {
-    return new Promise ((resolve, reject) => {
+    return new Promise ((resolve) => {
       var rpt = {
           type:     'servers',
           servers:  dns_getServers(),
@@ -83,12 +69,10 @@ const xp   = require('express'),
 
   lookupHost = host => {
     return new Promise ((resolve, reject) => {
-      if (host === null)
-        logger('lookupHost for null!!!');
       if (!host.length || !host)
         reject('Host name required');
       else {
-        var rpt = {
+        let rpt = {
             rqsthost:  host,
             type:    'lookup',
             evtlog:  []
@@ -99,7 +83,7 @@ const xp   = require('express'),
         dns_lookup(host)
         .then((address, family) => {
           rpt.address = address;
-          rpt.family = family;          
+          rpt.family = family;
           logger('done');
           resolve(rpt);
         })
@@ -116,7 +100,7 @@ const xp   = require('express'),
       if (!ip.length || !ip)
         reject('IP Address required');
       else {
-        var rpt = {
+        let rpt = {
             rqstip:  ip,
             type:    'ip',
             evtlog:  []
@@ -143,7 +127,7 @@ const xp   = require('express'),
       if (!rqstHost.length || !rqstHost)
         reject('Host name required');
       else {
-        var rpt = {
+        let rpt = {
             rqsthost: rqstHost,
             rqstsubs: rqstSubs,
             type:     'host',
@@ -157,7 +141,7 @@ const xp   = require('express'),
           loks = [], // promises <- hostResolve
           revs = [], // promises for reverse lookup
 
-          hostLookup = dom => new Promise ((resolve, reject) => {
+          hostLookup = dom => new Promise ((resolve) => {
             var ident = 'hostLookup ' + dom + ' ';
             logger(ident, 'start');
             dns_lookup(dom)
@@ -174,7 +158,7 @@ const xp   = require('express'),
             });
            }),
 
-          ipReverse = address => new Promise ((resolve, reject) => {
+          ipReverse = address => new Promise ((resolve) => {
             var ident = 'ipReverse ' + JSON.stringify(address) + ' ';
             logger(ident, 'start');
             dns_reverse(address)
@@ -182,7 +166,7 @@ const xp   = require('express'),
               if (hosts.length) {
                 logger(ident, 'found ' + hosts.length + 'associated domains');
                 rpt.ips[address] = hosts;
-                resolve();              
+                resolve();
               } else {
                 logger(ident, 'found no associated domains.');
                 rpt.ips[address] = [];
@@ -193,22 +177,22 @@ const xp   = require('express'),
                 logger(ident, 'reverse lookup error: ' + JSON.stringify(err));
                 rpt.ips[address] = [];
                 resolve([]);
-            })
+            });
           }),
 
           hostResolve = (host, rrtype) => {
             var ident = 'resolve ' + rrtype + ' for ' + host + ' ',
-            prom = new Promise ((resolve, reject) => {
+            prom = new Promise ((resolve) => {
               logger(ident, 'start');
               dns_resolve(host, rrtype)
               .then(hits => {
   //            logger(ident, 'done');
-                resolve(hits)
+                resolve(hits);
               })
               .catch(err => {
                 logger(ident, 'ERR: ' + err);
-                resolve(null)
-              })
+                resolve(null);
+              });
             });
             loks.push(prom);
             prom.then (recs => {
@@ -225,7 +209,7 @@ const xp   = require('express'),
               logger(ident, 'ERR: ' + err);
             });
           };
-        logger("hostLookups for ", rqstHost);
+        logger('hostLookups for ', rqstHost);
         loks.push(hostLookup(rqstHost));
         for (let k=0, knt=rqstSubs.length; k<knt; ++k) {
           loks.push(hostLookup([rqstSubs[k], rqstHost].join('.')));
@@ -245,7 +229,7 @@ const xp   = require('express'),
             Promise.all(revs)
             .then(() => {
               logger('dns resolve', 'done');
-              resolve(rpt)
+              resolve(rpt);
             })
             .catch(err => logger('reverses failed', err));
           } else {
@@ -274,7 +258,7 @@ const xp   = require('express'),
       reverseIp(host).then(rpt  => resolve(rpt));
     else if (isHost(host)) {
       if (full)
-        resolveHost(host, subs.length ? subs : stds).then(rpt => resolve(rpt))
+        resolveHost(host, subs.length ? subs : stds).then(rpt => resolve(rpt));
       else
         lookupHost(host).then(rpt => resolve(rpt));
     } else

@@ -1,0 +1,18 @@
+{
+  "extends": "eslint:recommended",
+  "rules": {
+    "strict": [2, "global"],
+    "semi": [2, "always"],
+    "quotes": [2, "single"],
+    "no-console": 0,
+    "vars-on-top": 2,
+    "no-implicit-coercion": [2, {"boolean": true, "number": true, "string": true}],
+    "eqeqeq": [2, "smart"],
+    "no-trailing-spaces": 2
+  },
+
+  "env": {
+    "node": true,
+    "es6": true
+  }
+}

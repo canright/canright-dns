@@ -23,7 +23,7 @@ app.use(morgan('dev'));
 app.get('/',    (req, res) => ok(res, 'Help', webHelp));
 app.get('/now', (req, res) => ok(res, 'Now', new Date()));
 
-app.use(dns); 
+app.use(dns);
 
 console.log('Serving HTTP requests at: localhost: %d', PORT);
 app.listen(PORT);

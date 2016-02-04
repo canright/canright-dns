@@ -28,7 +28,7 @@
   "dependencies": {
     "body-parser": "*",
     "morgan": "*",
-    "express": "*",
+    "express": "*"
   },
   
   "devDependencies": {
@@ -36,4 +36,5 @@
     "chai": "*",
     "request": "*"
   }
+
 }
