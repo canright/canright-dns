@@ -26,13 +26,13 @@ const readline = require('readline'),
   dnsHelp =
 `Usage:
 
-> dns servers     -- list ip addresses for dns resolution servers from dns.getServers()
-> dns $host       -- quick lookup to get the ip address associated with $host.
-> dns $host full  -- resolve dns for $host with lookups for default subdomains (www,mail,ftp,api,rest).
-> dns $host $subs -- resolve dns for $host with lookup for subdomains in $subs.
-> dns $ip         -- reverse lookup of hosts for that ip address.
+> dns servers                 -- list ip addresses for dns resolution servers from dns.getServers()
+> dns $host                   -- quick lookup to get the ip address associated with $host.
+> dns $host full              -- resolve dns for $host with lookups for default subdomains (www,mail,ftp,api,rest).
+> dns $host $sub1 $sub2 $sub3 -- resolve dns for $host with lookup for subdomains in $subs.
+> dns $ip                     -- reverse lookup of hosts for that ip address.
 
-> dns $addr $port -- returns hostname and service for an address and port using dns.lookupService
+> dns $addr $port             -- returns hostname and service for an address and port using dns.lookupService
 
 Examples:
 

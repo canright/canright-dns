@@ -1,11 +1,12 @@
 {
   "name": "dns",
-  "description": "minimum node cli and express web server for dns lookups",
   "version": "0.3.1",
+  "description": "minimum node cli and express web server for dns lookups",
   "private": true,
   "author": "Jim Canright",
-  "license": "ISC",
+  "license": "MIT",
   "main": "server.js",
+
   "scripts": {
     "test": "testDns.js"
   },
