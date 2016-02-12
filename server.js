@@ -10,7 +10,7 @@ const app = (require('express'))(),
   logto   = cli.log;
 
 app.use(parser.json());
-app.use(parser.urlencoded({ extended: false }));
+app.use(parser.urlencoded({extended: false}));
 app.use(morgan('dev', {stream: logto}));
 
 app.use(dnsrout);

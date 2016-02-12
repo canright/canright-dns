@@ -15,12 +15,10 @@ const dns = require('./dns'),
 '/dns/servers'                    -- list of ip addresses for dns resolution servers from dns.getServers()<br>
 '/dns/$ip'                        -- reverse lookup of hosts for that ip address.<br>
 '/dns/$host'                      -- quick lookup to get the ip address associated with that host.<br>
-'/dns/$host/full'                 -- resolve dns for that host with lookups for it and the default subdomains (www,mail,ftp,api,rest).<br>
-'/dns/$host/$sub1/$sub2/$sub3...' -- resolve dns for that host with lookups for it and the listed subdomains.<br>
-
-'/dns?servers'                    -- same as '/dns/servers'<br>
-'/dns/$host?full'                 -- same as '/dns/$host/full'<br>
 '/dns/$host?subs=$sub1,$sub2,...' -- same as '/dns/$host/$sub1/$sub2/$sub3...'<br>
+'/dns/$host/full'                 -- resolve dns for that host with lookups for it and the default subdomains (www,mail,ftp,api,rest).<br>
+<br>
+'/dns/$host/$sub1/$sub2/$sub3...' -- resolve dns for that host with lookups for it and the listed subdomains.<br>
 `,
 
   htmlPage = (title, body) =>
@@ -40,42 +38,34 @@ ${body}
 
 router.get('/',    (req, res) => reply(res, 'Help', help));
 router.get('/now', (req, res) => reply(res, 'Now', new Date()));
+router.get('/dns', (req, res) => reply(res, 'DNS Help', dnsHelp));
 
-router.get('/dns', (req, res) => {
-  if (typeof req.query.servers === 'undefined')
-    reply(res, 'DNS Help', dnsHelp);
-  else
-    dns.getServers()
-    .then (rpt => reply(res, 'dns getServers', out.generate(1,rpt)))
-    .catch(err => reply(res, 'dns getServers error', err));
+router.get('/dns/servers', (req, res) => {
+  dns.getServers()
+  .then (rpt => reply(res, 'dns getServers', out.generate(1,rpt)))
+  .catch(err => reply(res, 'dns getServers error', err));
 });
 
+const resolver = (res, host, subs, full) => {
+  dns.resolve(host, subs, full)
+  .then (rpt => reply(res, 'dns resolve', out.generate(1,rpt)))
+  .catch(err => reply(res, 'dns resolve error', err));
+}
+
 router.get('/dns/:host', (req, res) => {
-  const host = req.params.host;
-  if (host === 'servers')
-    dns.getServers()
-    .then (rpt => reply(res, 'dns getServers', out.generate(1,rpt)))
-    .catch(err => reply(res, 'dns getServers error', err));
-  else {
-    const ok = (title, body) => out.reply(res, out.htmlPage(title, body)),
-      subs = (typeof req.query.subs === 'undefined') ? [] : req.query.subs.split(',');
-    dns.resolve(req.params.host, subs, req.query.full)
-    .then (rpt => reply(res, 'dns resolve', out.generate(1,rpt)))
-    .catch(err => reply(res, 'dns resolve error', err));
-  }
+  if (typeof req.query.subs === 'undefined')
+    resolver(res, req.params.host, [], false);
+  else // ?subs=www,ftp,mail
+    resolver(res, req.params.host, req.query.subs.split(','), true);
+});
+
+router.get('/dns/:host/full', (req, res) => {
+  resolver(res, req.params.host, [], true);
 });
 
 router.get('/dns/:host/:sub', (req, res) => {
-  const host = req.params.host;
-  const sub = req.params.sub;
-  if (sub === 'full') {
-    const ok = (title, body) => out.reply(res, out.htmlPage(title, body)),
-      subs = []
-    dns.resolve(req.params.host, [], true)
-    .then (rpt => reply(res, 'dns resolve', out.generate(1,rpt)))
-    .catch(err => reply(res, 'dns resolve error', err));
-  } else
-    reply(res, 'unexpected sub', sub);
+  const subs = [req.params.sub];
+  resolver(res, req.params.host, subs, true)
 });
 
 module.exports = router;
