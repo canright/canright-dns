@@ -9,6 +9,10 @@ const readline = require('readline'),
   out = require('./out'),
   cli = readline.createInterface(process.stdin, process.stdout),
   log = process.stdio,
+  CLIOF = '',
+  CLION = '> ',
+  CLIER = '? ',
+  CLINO = '. ',
   cliHelp =
 `CLI commands:
 
@@ -72,7 +76,7 @@ Examples:
       case 'off':
         inCli = false;
         say('CLI is OFF. Enter empty line to turn it on.');
-        cli.setPrompt('');
+        cli.setPrompt(CLIOF);
         break;
 
      case 'exit':
@@ -92,19 +96,20 @@ Examples:
             let host = r[1];
             switch (host) {
               case 'servers':
+                cli.setPrompt(CLINO);
                 dns.getServers()
-                 .then (rpt => {cli.setPrompt('>'); ask(out.generate(0,rpt));})
-                 .catch(err => {cli.setPrompt('?'); ask('dns servers error: ' + err);});
+                 .then (rpt => {cli.setPrompt(CLION); ask(out.generate(0,rpt));})
+                 .catch(err => {cli.setPrompt(CLIER); ask('dns servers error: ' + err);});
                 break;
               default:
                 let subs = [];
                 if (r.length>2 && r[2]!=='full')
                   for (let i=2;i<r.length;++i)
                     subs.push(host);
-                cli.setPrompt('...');
+                cli.setPrompt(CLINO);
                 dns.resolve(host, subs, r.length>2)
-                 .then (rpt => {cli.setPrompt('>'); ask(out.generate(0,rpt));})
-                 .catch(err => {cli.setPrompt('?'); ask('dns resolve error: ' + err);});
+                 .then (rpt => {cli.setPrompt(CLION); ask(out.generate(0,rpt));})
+                 .catch(err => {cli.setPrompt(CLIER); ask('dns resolve error: ' + err);});
                 break;
             }
         }
@@ -118,12 +123,16 @@ Examples:
     }
   };
 
+
+
+
+
 exports.log = log;
 exports.say = say;
 exports.out = process.stdout;
 
 console.log('CLI is OFF. Enter empty line to use.');
-cli.setPrompt('');
+cli.setPrompt(CLIOF);
 
 cli.on('close', () => {
   console.log('[> close]');
@@ -132,7 +141,7 @@ cli.on('close', () => {
 
 cli.on('line', (line) => {
   if (!line.length && !inCli) {
-    cli.setPrompt('> ');
+    cli.setPrompt(CLION);
     inCli = true;
     ask('CLI is ON. Enter empty line for help.');
   } else
