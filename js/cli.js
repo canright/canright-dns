@@ -93,25 +93,22 @@ Examples:
         if (r.length<2) {
           ask(dnsHelp);
         } else {
-            let host = r[1];
-            switch (host) {
-              case 'servers':
-                cli.setPrompt(CLINO);
-                dns.getServers()
-                 .then (rpt => {cli.setPrompt(CLION); ask(out.generate(0,rpt));})
-                 .catch(err => {cli.setPrompt(CLIER); ask('dns servers error: ' + err);});
-                break;
-              default:
-                let subs = [];
-                if (r.length>2 && r[2]!=='full')
-                  for (let i=2;i<r.length;++i)
-                    subs.push(host);
-                cli.setPrompt(CLINO);
-                dns.resolve(host, subs, r.length>2)
-                 .then (rpt => {cli.setPrompt(CLION); ask(out.generate(0,rpt));})
-                 .catch(err => {cli.setPrompt(CLIER); ask('dns resolve error: ' + err);});
-                break;
-            }
+          let host = r[1];
+          if (host === 'servers') {
+            cli.setPrompt(CLINO);
+            dns.getServers()
+            .then (rpt => {cli.setPrompt(CLION); ask(out.generate(0,rpt));})
+            .catch(err => {cli.setPrompt(CLIER); ask('dns servers error: ' + err);});
+          } else {
+            let subs = [];
+            if (r.length>2 && r[2]!=='full')
+              for (let i=2;i<r.length;++i)
+                subs.push(host);
+            cli.setPrompt(CLINO);
+            dns.resolve(host, subs, r.length>2)
+            .then (rpt => {cli.setPrompt(CLION); ask(out.generate(0,rpt));})
+            .catch(err => {cli.setPrompt(CLIER); ask('dns resolve error: ' + err);});
+          }
         }
         break;
 

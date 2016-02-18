@@ -50,7 +50,7 @@ const resolver = (res, host, subs, full) => {
   dns.resolve(host, subs, full)
   .then (rpt => reply(res, 'dns resolve', out.generate(1,rpt)))
   .catch(err => reply(res, 'dns resolve error', err));
-}
+};
 
 router.get('/dns/:host', (req, res) => {
   if (typeof req.query.subs === 'undefined')
@@ -65,7 +65,7 @@ router.get('/dns/:host/full', (req, res) => {
 
 router.get('/dns/:host/:sub', (req, res) => {
   const subs = [req.params.sub];
-  resolver(res, req.params.host, subs, true)
+  resolver(res, req.params.host, subs, true);
 });
 
 module.exports = router;
