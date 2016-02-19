@@ -6,6 +6,7 @@
 - CLI integrated with web server.
 - No external dependencies (only uses node and express)
 - Built with ES6/2015 - promises, template strings, arrow functions, ...
+- 
 
 ### DNS report functions:
 
@@ -36,4 +37,4 @@
 server.js - a minimal express web server to process requests like 'dns/:host?:subdomains.
 js/cli.js - a cli interface.
 js/dns.js - generates report data for an IP address or for a host domain and array of subdomains.
-js/out.js - outputs report for html or cli
+js/out.js - outputs report for html or cli.  Demonstrates functional programming.
