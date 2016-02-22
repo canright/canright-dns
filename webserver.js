@@ -6,7 +6,6 @@ const app = (require('express'))(),
   morgan  = require('morgan'),
   dnsrout = require('./js/dnsrouter'),
   PORT    = process.env.PORT || 3000,
-
   logto   = process.stdout;
 
 app.use(parser.json());
