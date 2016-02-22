@@ -3,9 +3,12 @@
 ### Summary:
 
 - consolidated dns resolves and lookups from the node dns module.
-- demonstrates simple CLI integrated with web server.
 - No external dependencies (only uses node and express).
 - Built with ES6/2015 - promises, template strings, arrow functions, ...
+- demonstrates simple CLI integrated with web server.
+- demonstrates functional programming
+- demonstrates minimalist node/express web server.
+- cli is an optional mini-module.
 
 ### DNS report functions:
 
@@ -49,7 +52,9 @@
 
 ### Modules:
 
-server.js - a minimal express web server to process requests like 'dns/:host?:subdomains.
-js/cli.js - a cli interface.
-js/dns.js - generates report data for an IP address or for a host domain and array of subdomains.
-js/out.js - outputs report for html or cli.  Demonstrates functional programming.
+server.js    - a minimal express web server to process requests like 'dns/:host?:subdomains.
+js/cli.js    - a cli interface.
+js/dns.js    - generates report data for an IP address or for a host domain and array of subdomains.
+js/out.js    - outputs report for html or cli.  Demonstrates functional programming.
+webserver.js - changes two lines of server.js to simply serve http with no cli.
+
