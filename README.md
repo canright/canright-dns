@@ -1,6 +1,6 @@
 # dns-resolver
 
-### Summary:
+## Summary:
 
 - Consolidated dns resolves and lookups from the node dns module.
 - No external dependencies (only uses node and express).
@@ -10,7 +10,7 @@
 - Demonstrates minimalist node/express web server.
 - CLI is an optional mini-module.
 
-### DNS report functions:
+## DNS report functions:
 
 - lookup \<host\>               -- Quick lookup to get the ip address associated with host.
 - resolve \<host\>              -- Resolve dns for host with lookups for default subdomains.
@@ -18,7 +18,7 @@
 - resolve \<host\> \<subs..\>   -- Resolve dns for host with lookups for listed subdomains.
                                 -- default subdomains: @ (root), 'www', 'ftp' and 'mail'.
 
-### From a browser:
+## From a browser:
 
 - ../dns/\<host\>               -- Lookup host.
 - ../dns/\<host\>?full          -- Resolve host.
@@ -33,7 +33,7 @@
 - ../dns/google.com?subs=www,ftps
 
 
-### From CLI:
+## From CLI:
 
 - \> help  -- This help.
 - \> off   -- Turn off CLI
@@ -52,7 +52,7 @@
 - \> dns 192.168.92.15
 - \> dns google.com www ftp
 
-### Modules:
+## Modules:
 
 - server.js    - a minimal express web server to process requests like 'dns/:host?:subdomains.
 - js/cli.js    - a cli interface.
