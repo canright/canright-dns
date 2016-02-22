@@ -1,7 +1,7 @@
 {
   "name": "dns",
   "version": "0.4.0",
-  "description": "minimum node cli and express web server for dns lookups",
+  "description": "Consolidated DNS Lookups from node with minimalist CLI and express web server",
   "private": true,
   "author": "Jim Canright",
   "license": "MIT",
