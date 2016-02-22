@@ -4,7 +4,6 @@
 const dns = require('./dns'),
   out     = require('./out'),
   router  = require('express').Router(),
-
   help   =
 `'/now' -- echo current date and time<br>
 '/dns' -- DNS lookups
