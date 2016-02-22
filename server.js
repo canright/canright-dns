@@ -4,9 +4,7 @@
 const app = (require('express'))(),
   parser  = require('body-parser'),
   log     = require('morgan'),
-
   dnsrout = require('./js/dnsrouter'),
-
   PORT    = process.env.PORT || 3000,
   cli     = require('./js/cli'),
   logto   = cli.log;
