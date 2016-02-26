@@ -1,4 +1,4 @@
-# DNS esolver
+# DNS Resolver
 
 ## Summary:
 
@@ -53,10 +53,10 @@
 - \> dns google.com www ftp
 
 ## Modules:
-
+
 - server.js    - a minimal express web server to process requests like 'dns/:host?:subdomains.
 - js/cli.js    - a cli interface.
 - js/dns.js    - generates report data for an IP address or for a host domain and array of subdomains.
 - js/out.js    - outputs report for html or cli.  Demonstrates functional programming.
 - webserver.js - changes two lines of server.js to simply serve http with no cli.
-
+
