@@ -1,8 +1,8 @@
-# dns-resolver
+# DNS esolver
 
 ## Summary:
 
-- Consolidated dns resolves and lookups from the node dns module.
+- Consolidated REST dns resolves and lookups from the node dns module.
 - No external dependencies (only uses node and express).
 - Built with ES6/2015 - promises, template strings, arrow functions, ...
 - Demonstrates simple CLI integrated with web server.
@@ -18,7 +18,7 @@
 - resolve \<host\> \<subs..\>   -- Resolve dns for host with lookups for listed subdomains.
                                 -- default subdomains: @ (root), 'www', 'ftp' and 'mail'.
 
-## From a browser:
+## REST Request patterns:
 
 - ../dns/\<host\>               -- Lookup host.
 - ../dns/\<host\>?full          -- Resolve host.
