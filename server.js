@@ -3,17 +3,15 @@
 
 const app = (require('express'))(),
   parser  = require('body-parser'),
-  log     = require('morgan'),
-
+  morgan  = require('morgan'),
   dnsrout = require('./js/dnsrouter'),
-
   PORT    = process.env.PORT || 3000,
   cli     = require('./js/cli'),
   logto   = cli.log;
 
 app.use(parser.json());
 app.use(parser.urlencoded({extended: false}));
-app.use(log('dev', {stream: logto}));
+app.use(morgan('dev', {stream: logto}));
 
 app.use(dnsrout);
 
