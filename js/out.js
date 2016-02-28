@@ -110,6 +110,5 @@ exports.generate = (isH, rpt) => {
       return `
   ${tit('UNRECOGNIZED TYPE')}
 `;
-
   }
 };

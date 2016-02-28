@@ -13,6 +13,7 @@ const readline = require('readline'),
   CLION = '> ',
   CLIER = '? ',
   CLINO = '. ',
+
   cliHelp =
 `CLI commands:
 

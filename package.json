@@ -1,7 +1,7 @@
 {
-  "name": "dns",
+  "name": "dns-resolver",
   "version": "0.4.0",
-  "description": "minimum node cli and express web server for dns lookups",
+  "description": "Consolidated DNS Lookups from node with minimalist CLI and express web server",
   "private": true,
   "author": "Jim Canright",
   "license": "MIT",
@@ -13,17 +13,16 @@
 
   "repository": {
     "type": "git",
-    "url": "git://github.com/canright.dns.git"
+    "url": "git://github.com/canright.dns-resolver.git"
   },
 
   "keywords": [
+    "domain name lookup",
+    "dns resolution",
+    "Javascript ES6/2015",
     "node",
-    "es6",
-    "dns",
     "express",
-    "lookup",
-    "node cli server",
-    "wrapper"
+    "CLI server"
   ],
 
   "dependencies": {

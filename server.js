@@ -3,7 +3,11 @@
 
 const app = (require('express'))(),
   parser  = require('body-parser'),
+<<<<<<< HEAD
   morgan  = require('morgan'),
+=======
+  log     = require('morgan'),
+>>>>>>> 95d9fe33aafcdf26f6a101128cb5b8c23e597668
   dnsrout = require('./js/dnsrouter'),
   PORT    = process.env.PORT || 3000,
   cli     = require('./js/cli'),
