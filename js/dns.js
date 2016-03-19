@@ -175,7 +175,7 @@ const dns  = require('dns'),
                 logger(ident, 'reverse lookup error: ' + JSON.stringify(err));
                 rpt.ips[address] = [];
                 resolve([]);
-            });
+            });
           }),
 
           hostResolve = (host, rrtype) => {
