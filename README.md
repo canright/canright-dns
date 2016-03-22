@@ -2,14 +2,14 @@
 
 ## Summary:
 
-### webserver.js serves a RESTful http interface for the node DNS module.
+#### webserver.js serves a RESTful http interface for DNS lookups and name resolves via the node DNS module:
 
-- get: /lookup/\<ipaddress\>             
-- get: /lookup/\<host\>                  
-- get: /dns/\<host\>                 
-- get: /dns/\<host\>?subs=\<subs..\>
+- /lookup/\<ipaddress\>             
+- /lookup/\<host\>                  
+- /dns/\<host\>                 
+- /dns/\<host\>?subs=\<subs..\>
 
-### server.js adds a console CLI interface to the webserver.js RESTful interface.
+#### server.js adds a console CLI interface to the webserver.js RESTful interface:
 
 - > lookup \<ipaddress\>           -- Reverse lookup of hosts for that ip address.
 - > lookup \<host\>                -- Lookup the IP Address for that hostname.
