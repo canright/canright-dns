@@ -14,7 +14,7 @@
 - > lookup \<ipaddress\>           -- Reverse lookup of hosts for that ip address.
 - > lookup \<host\>                -- Lookup the IP Address for that hostname.
 - > dns \<host\>                   -- Report DNS for the hostname with default lookups.
-- > dns \<host\> sub sub sub ...   -- Report DNS for the hostname with lookups for host and listed subdomains.
+- > dns \<host\> sub sub sub ...   -- Report DNS with lookups for host and listed subdomains.
 
 - Default lookups are for the host and the 'www', 'ftp', and 'mail' subdomains.
 
