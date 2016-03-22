@@ -1,4 +1,4 @@
-# DNS Resolver
+# REST DNS
 
 ## Summary:
 
