@@ -2,7 +2,7 @@
 
 ## Summary:
 
-#### webserver.js serves a RESTful http interface for DNS lookups and name resolves via the node DNS module:
+#### webserver.js serves a RESTful HTTP interface for DNS lookups and dns reporting through the node DNS module:
 
 - /lookup/\<ipaddress\>             
 - /lookup/\<host\>                  
