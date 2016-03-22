@@ -42,7 +42,7 @@
 - \> dns google.com
 - \> dns google.com www ftps
 
-#### Usage
+#### Server Modules
 
 - webserver.js    - a minimal web server for RESTful DNS lookups and reports.
 - server.js       - adds console cli to webserver.js.
