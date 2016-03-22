@@ -18,7 +18,7 @@
 
 - Default lookups are for the host and the 'www', 'ftp', and 'mail' subdomains.
 
-### Featues
+#### Featues:
 
 - No external dependencies (only uses node and express).
 - Stack is javascript ES2015, node v4.4 LTS or 5.x, express, and tdd with mocha/assert.
@@ -33,14 +33,14 @@
 - /dns/google.com
 - /dns/google.com?subs=www,ftps
 
-## CLI Examples:
+#### CLI Examples:
 
 - \> lookup google.com
 - \> lookup 192.168.92.15
 - \> dns google.com
 - \> dns google.com www ftps
 
-## Modules:
+#### Modules:
 
 - server.js    - a minimal express web server to process requests like 'dns/:host?:subdomains.
 - js/cli.js    - a cli interface.
