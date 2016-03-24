@@ -13,19 +13,30 @@ const dns  = require('dns'),
   dns_servers = () => dns.getServers(),
 
   dns_lookup = host => {
+    console.log('lookup %s', host);
     return new Promise ((resolve, reject) => {
       if (!host.length || !host)
         reject('Host name required');
-      else
+      else {
+        console.log('dns.LOOKUP %s', host);
         dns.lookup(host, (err, address, family) => {
-          if (!err)
+          console.log('dns.lookup err: %s.', JSON.stringify(err));
+          console.log('dns.lookup address: %s.', address);
+          console.log('dns.lookup family: %s.', family);
+          if (!err) {
+            console.log('dns.lookup.then(%s,%s)', address, family);
             resolve({address, family});
-          else
-            if (err.errno === 'ENOTFOUND')
+          } else {
+            if (err.errno === 'ENOTFOUND') {
+              console.log('dns.lookup NOTFOUND');
               resolve({});
-            else
+            } else {
+              console.log('dns.lookup REJECT');
               reject({err});
+            }
+          }
         });
+      }
     });
   },
 

@@ -11,8 +11,13 @@ const len       = a               => !!a?a.length:0,
   testCount     = (fn, key, k)    => it (key, () => fn(key).then(a => assert(len(a)===k, key))),
   reverseCount  = (ip, k)         => testCount(dns.dns_reverse, ip, k),
   resolveCount  = (typ, host, k)  => it (`${typ}: ${host}`, () => dns.dns_resolve(host, typ).then(rs => assert(len(rs)===k), `${typ}: ${host}`)),
+  lookupExists  = host            => it (host             , () => dns.dns_lookup(host)      .then(r  => assert(JSON.stringify(r) !== JSON.stringify({}), host))),
+  lookupAbsent  = host            => it (host             , () => dns.dns_lookup(host)      .then(r  => assert(JSON.stringify(r) === JSON.stringify({}), host))),
 
-  lookupNone    = (host)          => it (host             , () => dns.dns_lookup(host)      .then(r  => assert(JSON.stringify(r) === JSON.stringify({}), host))),
+  lookupNone    = (host)          => it (host             , () => dns.dns_lookup(host)      .then(r  => {
+    console.log('==%s==%s===', host, JSON.stringify(r));
+    assert(JSON.stringify(r) === JSON.stringify({}), host);
+  })),
   lookupTest    = (host, x)       => it (host             , () => dns.dns_lookup(host)      .then(r  => assert(r.address===x, host))),
   reverseTest   = (ip, x)         => it (ip               , () => dns.dns_reverse(ip )      .then(rs => assert(rs[0]===x, ip))),
   resolveTest   = (typ, host, x)  => it (`${typ}: ${host}`, () => dns.dns_resolve(host, typ).then(rs => assert(rs[0]===x, `${typ}: ${host}`))),
@@ -49,9 +54,12 @@ describe('dns', function() {
   });
 
   describe('dns_lookup', function() {
-  	lookupNone ('jimcanrightxx.com');
+    lookupExists('canright.com');
+    lookupExists('www.canright.net');
+    lookupAbsent('jimcabc123canrightxyyx.com');
     lookupTest ('canright.com'    , '198.145.41.172');
     lookupTest ('www.canright.net', '198.145.41.172');
+    lookupNone ('jimcabc123canrightxyyx.com');
   });
 
   describe('dns_reverse', function() {
