@@ -244,8 +244,8 @@ const dns  = require('dns'),
         });
       }
     });
-  },
-
+  };
+/*
   resolve = (host, subs, full) => new Promise ((resolve, reject) => {
     if (typeof subs === 'undefined')
       subs = [];
@@ -262,6 +262,7 @@ const dns  = require('dns'),
     } else
       reject('Unrecognized host ' + host);
   });
+*/
 
 exports.truthify    = truthify;
 exports.isIp        = isIp;
@@ -271,8 +272,8 @@ exports.dns_lookup  = dns_lookup;
 exports.dns_reverse = dns_reverse;
 exports.dns_resolve = dns_resolve;
 
+exports.getServers  = getServers;
 exports.lookupHost  = lookupHost;
 exports.reverseIp   = reverseIp;
 exports.resolveHost = resolveHost;
-exports.getServers  = getServers;
-exports.resolve     = resolve;
+//exports.resolve     = resolve;

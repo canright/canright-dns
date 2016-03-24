@@ -1,8 +1,8 @@
 {
-  "name": "dns-resolver",
-  "version": "0.4.0",
+  "name": "rest-dns",
+  "version": "0.5.0",
   "description": "Consolidated DNS Lookups from node with minimalist CLI and express web server",
-  "private": true,
+  "private": false,
   "author": "Jim Canright",
   "license": "MIT",
   "main": "server.js",
@@ -33,9 +33,7 @@
   },
   
   "devDependencies": {
-    "mocha": "*",
-    "chai": "*",
-    "request": "*"
+    "mocha": "*"
   }
 
 }

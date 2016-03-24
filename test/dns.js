@@ -1,3 +1,5 @@
+/*jslint node: true */
+'use strict';
 
 const dns = require('../js/dns'),
   assert  = require('assert');
@@ -23,7 +25,7 @@ const len       = a               => !!a?a.length:0,
   report_0      = (fn,         pn, pv) => it (pv                         , () => fn             ()      .then(o  => assert(o[pn] === pv,              `${pn}: ${pv}`))),
   report_1      = (fn, a1,     pn, pv) => it (a1                         , () => fn             (a1)    .then(o  => assert(o[pn] === pv,       `${a1}; ${pn}: ${pv}`))),
   report_2      = (fn, a1, a2, pn, pv) => it (`${a1}-${a2}; ${pn}: ${pv}`, () => fn             (a1, a2).then(o  => assert(o[pn] === pv, `${a1}-${a2}; ${pn}: ${pv}`))),
-  rptResolve    = (    a1,     pn, pv) => it (      `${a1}; ${pn}: ${pv}`, () => dns.resolveHost(a1, []).then(o  => assert(o[pn] === pv,       `${a1}; ${pn}: ${pv}`)));
+  rptResolve    = (    a1,     pn, pv) => it (      `${a1}; ${pn}: ${pv}`, () => dns.resolveHost(a1, []).then(o  => assert(o[pn] === pv,       `${a1}; ${pn}: ${pv}`))),
   reportResolve = (    a1, a2, pn, pv) => it (`${a1}-${a2}; ${pn}: ${pv}`, () => dns.resolveHost(a1, a2).then(o  => assert(o[pn] === pv, `${a1}-${a2}; ${pn}: ${pv}`)));
 
 describe('dns', function() {
@@ -42,7 +44,7 @@ describe('dns', function() {
     negativeTests(dns.isHost, ['canright.n', 'c.an', 'c.com', '.can.com', '198.145.41.172']);
   });
 
-  describe('dns_getServers', function() {
+  describe('dns_servers', function() {
   	serversCount(1);
   });
 
