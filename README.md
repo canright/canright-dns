@@ -6,15 +6,16 @@
 
 #### webserver.js exposes the RESTful HTTP interface:
 
-- /lookup/\<ipaddress\>             
-- /lookup/\<host\>                  
+- /dns/servers
+- /dns/lookup/\<ipaddress\>             
+- /dns/lookup/\<host\>                  
 - /dns/\<host\>                 
 - /dns/\<host\>?subs=\<subs..\>
 
 #### server.js adds a console CLI interface:
 
-- \> lookup \<ipaddress\>       -- Reverse lookup of hosts for that ip address.
-- \> lookup \<host\>            -- Lookup the IP Address for that hostname.
+- \> dns lookup \<ipaddress\>   -- Reverse lookup of hosts for that ip address.
+- \> dns lookup \<host\>        -- Lookup the IP Address for that hostname.
 - \> dns \<host\>               -- Report DNS for the hostname with default lookups.
 - \> dns \<host\> sub sub ...   -- Report DNS with lookups for host and listed subdomains.
 
@@ -30,15 +31,15 @@
 
 #### HTTP Request Examples:
 
-- /lookup/google.com
-- /lookup/192.168.92.15
+- /dns/lookup/google.com
+- /dns/lookup/192.168.92.15
 - /dns/google.com
 - /dns/google.com?subs=www,ftps
 
 #### CLI Examples:
 
-- \> lookup google.com
-- \> lookup 192.168.92.15
+- \> dns lookup google.com
+- \> dns lookup 192.168.92.15
 - \> dns google.com
 - \> dns google.com www ftps
 

@@ -4,12 +4,13 @@
 const dns  = require('dns'),
   stds     = ['www', 'api', 'rest', 'mail', 'ftp'], // default subdirectries
   rrtypes  = ['NS', 'SOA', 'A', 'AAAA', 'CNAME', 'MX', 'TXT', 'SRV'], // resolution record types - 'PTR'
-  truthify = b => b ? true : false,
-  isIp     = s => truthify(s.match(new RegExp(/^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/))),
-  isHost   = s => truthify(!isIp(s) && s.match(new RegExp(/^((?:(?:(?:\w[\.\-\+]?)*)\w)+)((?:(?:(?:\w[\.\-\+]?){0,62})\w)+)\.(\w{2,6})$/))),
+//truthify = v => v ? true : false,
+  truthify = v => !!v,
+  isIp     = s => !!(s.match(new RegExp(/^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/))),
+  isHost   = s => !!(!isIp(s) && s.match(new RegExp(/^((?:(?:(?:\w[\.\-\+]?)*)\w)+)((?:(?:(?:\w[\.\-\+]?){0,62})\w)+)\.(\w{2,6})$/))),
   loglin   = (st, log, tit, msg) => log.push([new Date().getTime() - st, tit + ' ' + msg]),
 
-  dns_getServers = () => dns.getServers(),
+  dns_servers = () => dns.getServers(),
 
   dns_lookup = host => {
     return new Promise ((resolve, reject) => {
@@ -18,9 +19,12 @@ const dns  = require('dns'),
       else
         dns.lookup(host, (err, address, family) => {
           if (!err)
-            resolve(address, family);
+            resolve({address, family});
           else
-            reject({err});
+            if (err.errno === 'ENOTFOUND')
+              resolve({});
+            else
+              reject({err});
         });
     });
   },
@@ -34,7 +38,10 @@ const dns  = require('dns'),
           if (!err && hosts.length)
             resolve(hosts);
           else
-            reject({err});
+            if (err.errno === 'ENOTFOUND')
+              resolve([]);
+            else
+              reject({err});
         });
     });
   },
@@ -54,7 +61,7 @@ const dns  = require('dns'),
     return new Promise ((resolve) => {
       var rpt = {
           type:     'servers',
-          servers:  dns_getServers(),
+          servers:  dns_servers(),
           evtlog:   []
         },
         tStart = new Date().getTime(),
@@ -79,9 +86,9 @@ const dns  = require('dns'),
           logger = msg => loglin(tStart, rpt.evtlog, 'lookupHost ' + host, msg);
         logger('start');
         dns_lookup(host)
-        .then((address, family) => {
-          rpt.address = address;
-          rpt.family = family;
+        .then(rslt => {
+          rpt.address = rslt.address;
+          rpt.family = rslt.family;
           logger('done');
           resolve(rpt);
         })
@@ -143,10 +150,10 @@ const dns  = require('dns'),
             var ident = 'hostLookup ' + dom + ' ';
             logger(ident, 'start');
             dns_lookup(dom)
-            .then((address, family) => {
-              rpt.ips[address] = [];
-              rpt.lookups.push({dom: dom, address: address, family: family});
-              logger(ident, 'found ' + JSON.stringify(address));
+            .then(rslt => {
+              rpt.ips[rslt.address] = [];
+              rpt.lookups.push({dom: dom, address: rslt.address, family: rslt.family});
+              logger(ident, 'found ' + JSON.stringify(rslt.address));
               resolve();
             })
             .catch(err => {
@@ -256,8 +263,14 @@ const dns  = require('dns'),
       reject('Unrecognized host ' + host);
   });
 
+exports.truthify    = truthify;
 exports.isIp        = isIp;
 exports.isHost      = isHost;
+exports.dns_servers = dns_servers;
+exports.dns_lookup  = dns_lookup;
+exports.dns_reverse = dns_reverse;
+exports.dns_resolve = dns_resolve;
+
 exports.lookupHost  = lookupHost;
 exports.reverseIp   = reverseIp;
 exports.resolveHost = resolveHost;

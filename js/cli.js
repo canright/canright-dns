@@ -1,152 +1,124 @@
 /*jslint node: true */
 'use strict';
 
+const cmds = require('./commands');
+
 var inCli = false,
-  reservoir = [];
+  q = [];
 
 const readline = require('readline'),
-  dns = require('./dns'),
-  out = require('./out'),
-  cli = readline.createInterface(process.stdin, process.stdout),
+  con = readline.createInterface(process.stdin, process.stdout),
+
   log = process.stdio,
   CLIOF = '',
   CLION = '> ',
   CLIER = '? ',
   CLINO = '. ',
+  MGOFF = 'CLI is off.  Enter to turn it on.',
 
-  cliHelp =
-`CLI commands:
+  help =
+`- The CLI is active.
+- Logging to the console is paused.
+- Incoming event logs are queued.
 
-= on entry to cli, logging is paused.
-> help       -- this help
+CLI Commands:
+${cmds.help}
 
-> resume -- flush queued logs and stream until paused.  Cli is still active.
-> pause  -- pause log stream and queue lots until resumed.
-> off    -- turn off cli, and resume log.
-> exit   -- exit node.  Stop the server.
-> now    -- echo current date and time
-> dns    -- dns lookups
+> help   -- this help.
+> flush  -- flush queued logs and continue with the CLI.
+> resume -- resume logging after flushing queued logs and closing the CLI.
+> exit   -- stop the server.  Exit node.  Stop the server.
 `,
 
-  dnsHelp =
-`Usage:
-
-> dns servers                 -- list ip addresses for dns resolution servers from dns.getServers()
-> dns $host                   -- quick lookup to get the ip address associated with $host.
-> dns $host full              -- resolve dns for $host with lookups for default subdomains (www,mail,ftp,api,rest).
-> dns $host $sub1 $sub2 $sub3 -- resolve dns for $host with lookup for subdomains in $subs.
-> dns $ip                     -- reverse lookup of hosts for that ip address.
-
-> dns $addr $port             -- returns hostname and service for an address and port using dns.lookupService
-
-Examples:
-
-> dns servers
-> dns canright.com
-> dns canright.com full
-> dns canright.com www mail rest
-> dns 192.168.41.171
-
-> dns 127.0.0.1 22
-`,
-
-  say = s => {
-    if (inCli)
-      reservoir.push(s);
-    else {
-      let knt = reservoir.length;
+  flu = (x) => { // flush queue - x = already flushed.
+    var knt = q.length;
+    if (knt) {
       for (let k = 0; k < knt; ++k)
-        console.log(reservoir.shift());
+        console.log(q.shift());
+      flu(false);
+    } else if (!x)
+      flu(true);
+  },
+
+  say = s => { // say the message to the console
+    if (inCli)
+      q.push(s);
+    else {
+      flu();
       console.log(s);
     }
   },
 
-  ask = s => {console.log(s); cli.prompt();},
+  ask = s => {console.log(s); con.prompt();},
+
+  clion = () => {
+    inCli=true;
+    con.setPrompt(CLION);
+  },
+
+  clino = () => {
+    flu(false);
+    inCli=false;
+    con.setPrompt(CLIOF);
+  },
 
   exe = r => {
-    switch (r[0]) {
+    switch (r[0].toLowerCase()) {
 
-      case 'pause':
-        say('Logging is paused.');
+      case 'flush':
+        clino();
+        say('Logs are flushed.');
+        clion();
         break;
 
       case 'resume':
-        say('Logging is resumed.');
+        clino();
+        say('Logs are flushed.');
+        say('The CLI is off.');
+        say('Incomming events log directly to the console.');
+        say('Enter to return to the CLI.');
         break;
 
-      case 'off':
-        inCli = false;
-        say('CLI is OFF. Enter empty line to turn it on.');
-        cli.setPrompt(CLIOF);
-        break;
-
-     case 'exit':
-        inCli = false;
+      case 'exit':
+        clino();
         say('Exiting node');
         process.exit(0);
         break;
 
-      case 'now':
-        ask('It is ' + new Date());
-        break;
-
-      case 'dns':
-        if (r.length<2) {
-          ask(dnsHelp);
-        } else {
-          let host = r[1];
-          if (host === 'servers') {
-            cli.setPrompt(CLINO);
-            dns.getServers()
-            .then (rpt => {cli.setPrompt(CLION); ask(out.generate(0,rpt));})
-            .catch(err => {cli.setPrompt(CLIER); ask('dns servers error: ' + err);});
-          } else {
-            let subs = [];
-            if (r.length>2 && r[2]!=='full')
-              for (let i=2;i<r.length;++i)
-                subs.push(host);
-            cli.setPrompt(CLINO);
-            dns.resolve(host, subs, r.length>2)
-            .then (rpt => {cli.setPrompt(CLION); ask(out.generate(0,rpt));})
-            .catch(err => {cli.setPrompt(CLIER); ask('dns resolve error: ' + err);});
-          }
-        }
-        break;
-
       case '':
       case 'help':
+        ask(help);
+        break;
+
       default:
-        ask(cliHelp);
+        cmds.exe(r);
         break;
     }
   };
 
+exports.con  = con;
+exports.log  = log;
+exports.say  = say;
+exports.out  = process.stdout;
 
+console.log(MGOFF);
+con.setPrompt(CLIOF);
 
-
-
-exports.log = log;
-exports.say = say;
-exports.out = process.stdout;
-
-console.log('CLI is OFF. Enter empty line to use.');
-cli.setPrompt(CLIOF);
-
-cli.on('close', () => {
+con.on('close', () => {
   console.log('[> close]');
   process.exit(0);
 });
 
-cli.on('line', (line) => {
+con.on('line', (line) => {
   if (!line.length && !inCli) {
-    cli.setPrompt(CLION);
+    con.setPrompt(CLION);
     inCli = true;
-    ask('CLI is ON. Enter empty line for help.');
+    ask('CLI is ON. Try "help".');
   } else
     if (inCli)
       exe(line.trim().split(' '));
     else
-      say('CLI is off.  To turn on, enter empty line, not: ' + line);
+      say(MGOFF);
 
-  cli.prompt();
+  con.prompt();
 });
