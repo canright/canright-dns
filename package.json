@@ -1,7 +1,7 @@
 {
-  "name": "rest-dns",
+  "name": "canright-dns",
   "version": "0.5.0",
-  "description": "Consolidated DNS Lookups from node with minimalist CLI and express web server",
+  "description": "DNS HTTP and/or CLI Lookups and consolidated DNS resolution reports.",
   "private": false,
   "author": "Jim Canright",
   "license": "MIT",
