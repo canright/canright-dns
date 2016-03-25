@@ -4,7 +4,7 @@
 
 - Serves a REST HTTP interface for DNS lookups and DNS reporting through the node DNS module.
 
-#### webserver.js exposes the REST HTTP interface:
+#### webserver.js exposes the REST HTTP GET interface:
 
 - /dns/servers                  -- List the DNS servers used here.
 - /dns/lookup/\<ipaddress\>     -- Reverse lookup of hosts for that ip address.        
