@@ -1,52 +1,48 @@
-# REST DNS
+# Canright DNS
 
 ## Summary:
 
-#### Serves a RESTful HTTP interface for DNS lookups and DNS reporting through the node DNS module.
+#### Serves a REST HTTP interface for DNS lookups and DNS reporting through the node DNS module.
 
-#### webserver.js exposes the RESTful HTTP interface:
+#### webserver.js exposes the REST HTTP interface with one (changable) entry point (defaults to 'dns')
 
-- /dns/servers
-- /dns/lookup/\<ipaddress\>             
-- /dns/lookup/\<host\>                  
-- /dns/\<host\>                 
-- /dns/\<host\>?subs=\<subs..\>
+- /dns/servers                  -- List the DNS servers used here.
+- /dns/lookup/\<ipaddress\>     -- Reverse lookup of hosts for that ip address.        
+- /dns/lookup/\<host\>          -- Lookup the IP Address for that hostname.   
+- /dns/\<host\>                 -- Report DNS for the hostname with default lookups.
+- /dns/\<host\>?subs=\<subs..\> -- Report DNS with lookups for host and listed subdomains.
 
-#### server.js adds a console CLI interface:
+#### server.js extends webserver.js to include the cli module and this console CLI interface:
 
-- \> dns lookup \<ipaddress\>   -- Reverse lookup of hosts for that ip address.
-- \> dns lookup \<host\>        -- Lookup the IP Address for that hostname.
-- \> dns \<host\>               -- Report DNS for the hostname with default lookups.
-- \> dns \<host\> sub sub ...   -- Report DNS with lookups for host and listed subdomains.
-
-- Default lookups are for the host and the 'www', 'ftp', and 'mail' subdomains.
+- \> dns servers
+- \> dns lookup \<ipaddress\>   
+- \> dns lookup \<host\>        
+- \> dns \<host\>               -- Default lookups are for the host and the 'www', 'ftp', and 'mail' subdomains.
+- \> dns \<host\> sub sub ...   
 
 #### Featues:
 
 - No external dependencies (only uses node and express).
-- Stack is javascript ES2015, node v4.4 LTS or 5.x, express, and tdd with mocha/assert.
-- Seeks to demonstrate Functional Programming and best advanced practices on that stack.
+- Stack is javascript ES2015, typescript, node, npm, express, and mocha.
+- Seeks to demonstrate Functional Programming and best software engineering practices on target stack.
 - Built with ES6/2015 - promises, template strings, arrow functions, ...
-- Demonstrates minimalist node/express web server.
+- Demonstrates solid minimal node/express server with current best stack and practices.
 
-#### HTTP Request Examples:
+#### HTTP Request Examples (webserver.js and server.js):
 
+- /dns/servers
 - /dns/lookup/google.com
 - /dns/lookup/192.168.92.15
 - /dns/google.com
 - /dns/google.com?subs=www,ftps
 
-#### CLI Examples:
+#### CLI Examples (server.js)
 
+- \> dns servers
 - \> dns lookup google.com
 - \> dns lookup 192.168.92.15
 - \> dns google.com
 - \> dns google.com www ftps
-
-#### Server Modules
-
-- webserver.js    - a minimal web server for RESTful DNS lookups and reports.
-- server.js       - adds console cli to webserver.js.
 
 #### Supporting Modules:
 
