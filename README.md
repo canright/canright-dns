@@ -2,9 +2,9 @@
 
 ## Summary:
 
-#### Serves a REST HTTP interface for DNS lookups and DNS reporting through the node DNS module.
+- Serves a REST HTTP interface for DNS lookups and DNS reporting through the node DNS module.
 
-#### webserver.js exposes the REST HTTP interface with one (changable) entry point (defaults to 'dns')
+#### webserver.js exposes the REST HTTP interface:
 
 - /dns/servers                  -- List the DNS servers used here.
 - /dns/lookup/\<ipaddress\>     -- Reverse lookup of hosts for that ip address.        
@@ -22,11 +22,14 @@
 
 #### Featues:
 
-- No external dependencies (only uses node and express).
-- Stack is javascript ES2015, typescript, node, npm, express, and mocha.
-- Seeks to demonstrate Functional Programming and best software engineering practices on target stack.
+- Stack is javascript ES2015, node, npm, typescript, express, and mocha.
+- Strives toward current best engineeering practices on target stack.
+- Strives to fully harness and demonstrate mastery of the target stack.
 - Built with ES6/2015 - promises, template strings, arrow functions, ...
+- Strives toward a expert Functional Programming approach.
+- No external dependencies (only uses node and express).
 - Demonstrates solid minimal node/express server with current best stack and practices.
+- Single entry point (default: 'dns') is configurable.
 
 #### HTTP Request Examples (webserver.js and server.js):
 
@@ -46,7 +49,9 @@
 
 #### Supporting Modules:
 
+- js/dns.js       - promises report data for a request.
+- js/out.js       - responds with html or cli report from report data.
+- js/commands.js  - implements cli dns commands
+
 - js/dnsrouter.js - express face for dns module
-- js/dns.js       - generates report object for an IP address or for a host domain and array of subdomains.
-- js/out.js       - outputs report for html or cli.  Demonstrates functional programming.
 - js/cli.js       - cli interface.
